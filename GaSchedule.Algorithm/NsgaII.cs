@@ -223,6 +223,7 @@ namespace GaSchedule.Algorithm
 
 				/******************* selection *****************/
 				population = Selection(front, totalChromosome);
+				_populationSize = population.Count;
 
 				/******************* comparison *****************/
 				if (currentGeneration == 0)
