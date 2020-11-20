@@ -10,7 +10,7 @@ namespace GaSchedule
     {
         static void Main(string[] args)
         {
-            System.Console.WriteLine("GaSchedule Version {0} C# .NET Core. Making a Class Schedule Using a Genetic Algorithm.", Assembly.GetExecutingAssembly().GetName().Version);
+            System.Console.WriteLine("GaSchedule Version {0} C# .NET Core. Making a Class Schedule Using a Genetic Algorithm (NSGA-II).", Assembly.GetExecutingAssembly().GetName().Version);
             System.Console.WriteLine("Copyright (C) 2020 Miller Cy Chan.");
 
             Stopwatch stopwatch = Stopwatch.StartNew();
@@ -18,10 +18,11 @@ namespace GaSchedule
             var FILE_NAME = args.Length > 0 ? args[0] : "GaSchedule.json";
             var configuration = new GaSchedule.Algorithm.Configuration();
             configuration.ParseFile(FILE_NAME);
-            
-            var ga = new GeneticAlgorithm<Schedule>(new Schedule(configuration));
-            ga.Run();
-            var htmlResult = HtmlOutput.GetResult(ga.Result);
+
+            // var alg = new GeneticAlgorithm<Schedule>(new Schedule(configuration));
+            var alg = new NsgaII<Schedule>(new Schedule(configuration));
+            alg.Run();
+            var htmlResult = HtmlOutput.GetResult(alg.Result);
 
             var tempFilePath = Path.GetTempPath() + FILE_NAME.Replace(".json", ".htm");
             using (StreamWriter outputFile = new StreamWriter(tempFilePath))

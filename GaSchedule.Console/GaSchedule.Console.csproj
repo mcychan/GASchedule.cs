@@ -9,6 +9,8 @@
     <Authors>Miller Cy Chan</Authors>
     <Company>DNAssist ®</Company>
     <RootNamespace>GaSchedule</RootNamespace>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
