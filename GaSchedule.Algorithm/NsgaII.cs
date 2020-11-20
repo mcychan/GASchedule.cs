@@ -61,7 +61,6 @@ namespace GaSchedule.Algorithm
 			for (int p = 0; p < s.Length; ++p)
 			{
 				s[p] = new HashSet<int>();
-				n[p] = 0;
 				for (int q = 0; q < s.Length; ++q)
 				{
 					if (totalChromosome[p].Fitness > totalChromosome[q].Fitness)
@@ -85,8 +84,7 @@ namespace GaSchedule.Algorithm
 				{
 					foreach (int q in s[p])
 					{
-						--n[q];
-						if (n[q] == 0)
+						if (--n[q] == 0)
 						{
 							rank[q] = i + 1;
 							Q.Add(q);
