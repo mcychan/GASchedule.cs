@@ -108,7 +108,7 @@ namespace GaSchedule.Algorithm
 			foreach (int m in front)
 				obj[m] = totalChromosome[m].Fitness;
 
-			var sortedKeys = obj.Keys.ToArray();
+			var sortedKeys = obj.OrderBy(e => e.Value).Select(e => e.Key).ToArray();
 			distance[sortedKeys[front.Count - 1]] = float.MaxValue;
 			distance[sortedKeys[0]] = float.MaxValue;
 
@@ -118,7 +118,7 @@ namespace GaSchedule.Algorithm
 				if (values.Count != 1)
 					distance[sortedKeys[i]] = distance[sortedKeys[i]] + (obj[sortedKeys[i + 1]] - obj[sortedKeys[i - 1]]) / (obj[sortedKeys[front.Count - 1]] - obj[sortedKeys[0]]);
 			}
-			return distance.Keys.Reverse().ToHashSet();
+			return distance.OrderBy(e => e.Value).Select(e => e.Key).Reverse().ToHashSet();
 		}
 
 		private List<T> Selection(List<HashSet<int> > front, List<T> totalChromosome)
