@@ -100,22 +100,17 @@ namespace GaSchedule.Algorithm
 		/************** calculate crowding distance function ***************************/
 		private HashSet<int> CalculateCrowdingDistance(HashSet<int> front, List<T> totalChromosome)
 		{
-			var distance = new Dictionary<int, float>();
-			foreach (int m in front)
-				distance[m] = 0.0f;
-
-			var obj = new Dictionary<int, float>();
-			foreach (int m in front)
-				obj[m] = totalChromosome[m].Fitness;
+			var distance = front.ToDictionary(m => m, m => 0.0f);
+			var obj = front.ToDictionary(m => m, m => totalChromosome[m].Fitness);
 
 			var sortedKeys = obj.OrderBy(e => e.Value).Select(e => e.Key).ToArray();
 			distance[sortedKeys[front.Count - 1]] = float.MaxValue;
 			distance[sortedKeys[0]] = float.MaxValue;
 
 			var values = new HashSet<float>(obj.Values);
-			for (int i = 1; i < front.Count - 1; ++i)
+			if (values.Count > 1)
 			{
-				if (values.Count != 1)
+				for (int i = 1; i < front.Count - 1; ++i)
 					distance[sortedKeys[i]] = distance[sortedKeys[i]] + (obj[sortedKeys[i + 1]] - obj[sortedKeys[i - 1]]) / (obj[sortedKeys[front.Count - 1]] - obj[sortedKeys[0]]);
 			}
 			return distance.OrderBy(e => e.Value).Select(e => e.Key).Reverse().ToHashSet();
@@ -127,12 +122,12 @@ namespace GaSchedule.Algorithm
 			var newPop = new List<int>();
 			while (N < _populationSize)
 			{
-				for (int i = 0; i < front.Count; ++i)
+				foreach (var row in front)
 				{
-					N += front[i].Count;
+					N += row.Count;
 					if (N > _populationSize)
 					{
-						var sortedCdf = CalculateCrowdingDistance(front[i], totalChromosome);
+						var sortedCdf = CalculateCrowdingDistance(row, totalChromosome);
 						foreach (int j in sortedCdf)
 						{
 							if (newPop.Count >= _populationSize)
@@ -141,7 +136,7 @@ namespace GaSchedule.Algorithm
 						}
 						break;
 					}
-					newPop.AddRange(front[i]);
+					newPop.AddRange(row);
 				}
 			}
 
