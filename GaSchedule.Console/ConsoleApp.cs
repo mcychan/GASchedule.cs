@@ -10,7 +10,7 @@ namespace GaSchedule
     {
         static void Main(string[] args)
         {
-            System.Console.WriteLine("GaSchedule Version {0} C# .NET Core. Making a Class Schedule Using a Genetic Algorithm (NSGA-II).", Assembly.GetExecutingAssembly().GetName().Version);
+            System.Console.WriteLine("GaSchedule Version {0} C# .NET Core. Making a Class Schedule Using a Genetic Algorithm (NRGA).", Assembly.GetExecutingAssembly().GetName().Version);
             System.Console.WriteLine("Copyright (C) 2020 Miller Cy Chan.");
 
             Stopwatch stopwatch = Stopwatch.StartNew();
@@ -20,7 +20,7 @@ namespace GaSchedule
             configuration.ParseFile(FILE_NAME);
 
             // var alg = new GeneticAlgorithm<Schedule>(new Schedule(configuration));
-            var alg = new NsgaII<Schedule>(new Schedule(configuration));
+            var alg = new Ngra<Schedule>(new Schedule(configuration));
             alg.Run();
             var htmlResult = HtmlOutput.GetResult(alg.Result);
 
