@@ -140,11 +140,7 @@ namespace GaSchedule.Algorithm
 				}
 			}
 
-			var population = new List<T>();
-			foreach (int n in newPop)
-				population.Add(totalChromosome[n]);
-
-			return population;
+			return newPop.Select(n => totalChromosome[n]).ToList();
 		}
 
 		protected void Initialize(List<T> population)
