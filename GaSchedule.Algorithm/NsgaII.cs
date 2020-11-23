@@ -14,7 +14,7 @@ namespace GaSchedule.Algorithm
 		private T _prototype;
 
 		// Number of chromosomes
-		private int _populationSize;
+		protected int _populationSize;
 
 		// Number of crossover points of parent's class tables
 		private int _numberOfCrossoverPoints;
@@ -98,7 +98,7 @@ namespace GaSchedule.Algorithm
 		}
 
 		/************** calculate crowding distance function ***************************/
-		private ISet<int> CalculateCrowdingDistance(ISet<int> front, List<T> totalChromosome)
+		protected virtual ISet<int> CalculateCrowdingDistance(ISet<int> front, List<T> totalChromosome)
 		{
 			var distance = front.ToDictionary(m => m, _ => 0.0f);
 			var obj = front.ToDictionary(m => m, m => totalChromosome[m].Fitness);
