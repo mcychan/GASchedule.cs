@@ -6,30 +6,61 @@ namespace GaSchedule.Algorithm
 {
 	/****************** Non-dominated Ranking Genetic Algorithm (NRGA) **********************/
 	public class Ngra<T> : NsgaII<T> where T : Chromosome<T>
-    {
+	{
 		public Ngra(T prototype, int numberOfCrossoverPoints = 2, int mutationSize = 2, float crossoverProbability = 80, float mutationProbability = 3) : base(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability)
 		{
 		}
 
 		/************** calculate crowding distance function ***************************/
-		protected override Dictionary<int, float> CalculateCrowdingDistance(ISet<int> front, List<T> totalChromosome)
+		protected override List<T> Replacement(List<T> population)
 		{
-			int N = _populationSize;
-			float divisor = N * (N + 1);
-			var distance = front.ToDictionary(m => m, _ => 0.0f);
-			var obj = front.ToDictionary(m => m, m => 2 * _rank[m] / divisor);
+			var obj = Enumerable.Range(0, population.Count).ToDictionary(m => m, m => population[m].Fitness);
+			var sortedIndices = obj.OrderByDescending(e => e.Value).Select(e => e.Key).ToArray();
 
-			var sortedKeys = obj.OrderBy(e => e.Value).Select(e => e.Key).ToArray();
-			distance[sortedKeys[front.Count - 1]] = float.MaxValue;
-			distance[sortedKeys[0]] = float.MaxValue;
+			int totalFitness = (population.Count + 1) * population.Count / 2;
 
-			var values = new HashSet<float>(obj.Values);
-			if (values.Count > 1)
+			List<Double> probSelection = Enumerable.Range(0, population.Count).Select(i => i * 1.0 / totalFitness).ToList();
+			double[] cumProb = Enumerable.Range(0, population.Count).Select(i => probSelection.GetRange(0, i + 1).Sum()).ToArray();
+
+			double[] selectIndices = Enumerable.Range(0, population.Count).Select(i => Configuration.Random()).ToArray();
+
+			var parent = new T[2];
+			int parentIndex = 0;
+			var offspring = new List<T>();
+			for (int i = 0; i < population.Count; ++i)
 			{
-				for (int i = 1; i < front.Count - 1; ++i)
-					distance[sortedKeys[i]] = distance[sortedKeys[i]] + (obj[sortedKeys[i + 1]] - obj[sortedKeys[i - 1]]) / (obj[sortedKeys[front.Count - 1]] - obj[sortedKeys[0]]);
+				bool selected = false;
+				for (int j = 0; j < population.Count - 1; ++j)
+				{
+					if (cumProb[j] < selectIndices[i] && cumProb[j + 1] >= selectIndices[i])
+					{
+						parent[parentIndex++ % 2] = population[sortedIndices[j + 1]];
+						selected = true;
+						break;
+					}
+				}
+
+				if (!selected)
+					parent[parentIndex++ % 2] = population[sortedIndices[i]];
+
+				if (parentIndex > 0 && parentIndex % 2 == 0)
+				{
+					T child0 = parent[0].Crossover(parent[1], _numberOfCrossoverPoints, _crossoverProbability);
+					T child1 = parent[1].Crossover(parent[0], _numberOfCrossoverPoints, _crossoverProbability);
+					offspring.Add(child0);
+					offspring.Add(child1);
+				}
 			}
-			return distance;
+
+			return offspring;
+		}
+
+		protected override void Initialize(List<T> population)
+		{
+			base.Initialize(population);
+			List<T> offspring = Replacement(population);
+			population.Clear();
+			population.AddRange(offspring);
 		}
 	}
 }

@@ -11,24 +11,22 @@ namespace GaSchedule.Algorithm
 		private T[] _chromosomes;
 
 		// Prototype of chromosomes in population
-		private T _prototype;
+		protected T _prototype;
 
 		// Number of chromosomes
 		protected int _populationSize;
 
 		// Number of crossover points of parent's class tables
-		private int _numberOfCrossoverPoints;
+		protected int _numberOfCrossoverPoints;
 
 		// Number of classes that is moved randomly by single mutation operation
 		private int _mutationSize;
 
 		// Probability that crossover will occur
-		private float _crossoverProbability;
+		protected float _crossoverProbability;
 
 		// Probability that mutation will occur
 		private float _mutationProbability;
-
-		protected int[] _rank;
 
 		// Initializes NsgaII
 		private NsgaII(T prototype, int numberOfChromosomes)
@@ -57,7 +55,7 @@ namespace GaSchedule.Algorithm
 			var s = new HashSet<int>[_populationSize * 2];
 			var n = new int[s.Length];
 			var front = new List<ISet<int> >();
-			_rank = new int[s.Length];
+			var rank = new int[s.Length];
 			front.Add(new HashSet<int>());
 
 			for (int p = 0; p < s.Length; ++p)
@@ -73,7 +71,7 @@ namespace GaSchedule.Algorithm
 
 				if (n[p] == 0)
 				{
-					_rank[p] = 0;
+					rank[p] = 0;
 					front[0].Add(p);
 				}
 			}
@@ -88,7 +86,7 @@ namespace GaSchedule.Algorithm
 					{
 						if (--n[q] == 0)
 						{
-							_rank[q] = i + 1;
+							rank[q] = i + 1;
 							Q.Add(q);
 						}
 					}
@@ -100,7 +98,7 @@ namespace GaSchedule.Algorithm
 		}
 
 		/************** calculate crowding distance function ***************************/
-		protected virtual Dictionary<int, float> CalculateCrowdingDistance(ISet<int> front, List<T> totalChromosome)
+		private Dictionary<int, float> CalculateCrowdingDistance(ISet<int> front, List<T> totalChromosome)
 		{
 			var distance = front.ToDictionary(m => m, _ => 0.0f);
 			var obj = front.ToDictionary(m => m, m => totalChromosome[m].Fitness);
@@ -118,7 +116,7 @@ namespace GaSchedule.Algorithm
 			return distance;
 		}
 
-		private T[] Selection(List<ISet<int> > front, List<T> totalChromosome)
+		private List<T> Selection(List<ISet<int> > front, List<T> totalChromosome)
 		{
 			int N = 0;
 			var newPop = new List<int>();
@@ -143,14 +141,32 @@ namespace GaSchedule.Algorithm
 				}
 			}
 
-			return newPop.Select(n => totalChromosome[n]).ToArray();
-		}
+			return newPop.Select(n => totalChromosome[n]).ToList();
+		}		
 
-		protected void Initialize(T[] population)
+		protected virtual List<T> Replacement(List<T> population)
+		{
+			var offspring = new List<T>();
+			Random rnd = new Random();
+			var S = Enumerable.Range(0, _populationSize).OrderBy(_ => rnd.Next()).ToArray();
+
+			int halfPopulationSize = _populationSize / 2;
+			for (int m = 0; m < halfPopulationSize; ++m)
+			{
+				var parent0 = population[S[2 * m]];
+				var parent1 = population[S[2 * m + 1]];
+				var child0 = parent0.Crossover(parent1, _numberOfCrossoverPoints, _crossoverProbability);
+				var child1 = parent1.Crossover(parent0, _numberOfCrossoverPoints, _crossoverProbability);
+				offspring.Add(child0);
+				offspring.Add(child1);
+			}
+			return offspring;
+		}
+		protected virtual void Initialize(List<T> population)
 		{
 			// initialize new population with chromosomes randomly built using prototype
 			for (int i = 0; i < _populationSize; ++i)
-				population[i] = _prototype.MakeNewFromPrototype();
+				population.Add(_prototype.MakeNewFromPrototype());
 		}
 
 		// Starts and executes algorithm
@@ -159,7 +175,7 @@ namespace GaSchedule.Algorithm
 			if (_prototype == null)
 				return;
 
-			var population = new T[_populationSize];
+			var population = new List<T>();
 			Initialize(population);
 
 			// Current generation
@@ -190,20 +206,7 @@ namespace GaSchedule.Algorithm
 				}
 
 				/******************* crossover *****************/
-				var offspring = new List<T>();
-				Random rnd = new Random();
-				var S = Enumerable.Range(0, _populationSize).OrderBy(_ => rnd.Next()).ToArray();
-
-				int halfPopulationSize = _populationSize / 2;
-				for (int m = 0; m < halfPopulationSize; ++m)
-				{
-					var parent0 = population[S[2 * m]];
-					var parent1 = population[S[2 * m + 1]];
-					var child0 = parent0.Crossover(parent1, _numberOfCrossoverPoints, _crossoverProbability);
-					var child1 = parent1.Crossover(parent0, _numberOfCrossoverPoints, _crossoverProbability);
-					offspring.Add(child0);
-					offspring.Add(child1);
-				}
+				var offspring = Replacement(population);
 
 				/******************* mutation *****************/
 				foreach (var child in offspring)
@@ -217,17 +220,17 @@ namespace GaSchedule.Algorithm
 
 				/******************* selection *****************/
 				population = Selection(front, totalChromosome);
-				_populationSize = population.Length;
+				_populationSize = population.Count;
 
 				/******************* comparison *****************/
 				if (currentGeneration == 0)
-					_chromosomes = population;
+					_chromosomes = population.ToArray();
 				else
 				{
 					totalChromosome = new List<T>(population);
 					totalChromosome.AddRange(_chromosomes);
 					var newBestFront = NonDominatedSorting(totalChromosome);
-					_chromosomes = Selection(newBestFront, totalChromosome);
+					_chromosomes = Selection(newBestFront, totalChromosome).ToArray();
 					lastBestFit = best.Fitness;
 				}
 				++currentGeneration;

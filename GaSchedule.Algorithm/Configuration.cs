@@ -309,6 +309,10 @@ namespace GaSchedule.Algorithm
 		{
 			return random.Next(0, 32767);
 		}
+		public static double Random()
+		{
+			return random.NextDouble();
+		}
 
 	}
 }
