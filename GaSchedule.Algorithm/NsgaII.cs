@@ -28,6 +28,8 @@ namespace GaSchedule.Algorithm
 		// Probability that mutation will occur
 		private float _mutationProbability;
 
+		protected int[] _rank;
+
 		// Initializes NsgaII
 		private NsgaII(T prototype, int numberOfChromosomes)
 		{
@@ -55,7 +57,7 @@ namespace GaSchedule.Algorithm
 			var s = new HashSet<int>[_populationSize * 2];
 			var n = new int[s.Length];
 			var front = new List<ISet<int> >();
-			var rank = new int[s.Length];
+			_rank = new int[s.Length];
 			front.Add(new HashSet<int>());
 
 			for (int p = 0; p < s.Length; ++p)
@@ -71,7 +73,7 @@ namespace GaSchedule.Algorithm
 
 				if (n[p] == 0)
 				{
-					rank[p] = 0;
+					_rank[p] = 0;
 					front[0].Add(p);
 				}
 			}
@@ -86,7 +88,7 @@ namespace GaSchedule.Algorithm
 					{
 						if (--n[q] == 0)
 						{
-							rank[q] = i + 1;
+							_rank[q] = i + 1;
 							Q.Add(q);
 						}
 					}

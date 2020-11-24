@@ -17,7 +17,7 @@ namespace GaSchedule.Algorithm
 			int N = _populationSize;
 			float divisor = N * (N + 1);
 			var distance = front.ToDictionary(m => m, _ => 0.0f);
-			var obj = front.ToDictionary(m => m, m => 2 * m / divisor);
+			var obj = front.ToDictionary(m => m, m => 2 * _rank[m] / divisor);
 
 			var sortedKeys = obj.OrderBy(e => e.Value).Select(e => e.Key).ToArray();
 			distance[sortedKeys[front.Count - 1]] = float.MaxValue;
