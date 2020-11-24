@@ -98,7 +98,7 @@ namespace GaSchedule.Algorithm
 		}
 
 		/************** calculate crowding distance function ***************************/
-		protected virtual ISet<int> CalculateCrowdingDistance(ISet<int> front, List<T> totalChromosome)
+		protected virtual Dictionary<int, float> CalculateCrowdingDistance(ISet<int> front, List<T> totalChromosome)
 		{
 			var distance = front.ToDictionary(m => m, _ => 0.0f);
 			var obj = front.ToDictionary(m => m, m => totalChromosome[m].Fitness);
@@ -113,7 +113,7 @@ namespace GaSchedule.Algorithm
 				for (int i = 1; i < front.Count - 1; ++i)
 					distance[sortedKeys[i]] = distance[sortedKeys[i]] + (obj[sortedKeys[i + 1]] - obj[sortedKeys[i - 1]]) / (obj[sortedKeys[front.Count - 1]] - obj[sortedKeys[0]]);
 			}
-			return distance.OrderBy(e => e.Value).Select(e => e.Key).Reverse().ToHashSet();
+			return distance;
 		}
 
 		private T[] Selection(List<ISet<int> > front, List<T> totalChromosome)
@@ -127,7 +127,8 @@ namespace GaSchedule.Algorithm
 					N += row.Count;
 					if (N > _populationSize)
 					{
-						var sortedCdf = CalculateCrowdingDistance(row, totalChromosome);
+						var distance = CalculateCrowdingDistance(row, totalChromosome);
+						var sortedCdf = distance.OrderBy(e => e.Value).Select(e => e.Key).Reverse().ToHashSet();
 						foreach (int j in sortedCdf)
 						{
 							if (newPop.Count >= _populationSize)
