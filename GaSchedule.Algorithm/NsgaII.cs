@@ -147,7 +147,7 @@ namespace GaSchedule.Algorithm
 		protected virtual List<T> Replacement(List<T> population)
 		{
 			var offspring = new List<T>();
-			Random rnd = new Random();
+			var rnd = new Random();
 			var S = Enumerable.Range(0, _populationSize).OrderBy(_ => rnd.Next()).ToArray();
 
 			int halfPopulationSize = _populationSize / 2;

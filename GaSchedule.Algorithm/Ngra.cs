@@ -19,10 +19,10 @@ namespace GaSchedule.Algorithm
 
 			int totalFitness = (population.Count + 1) * population.Count / 2;
 
-			List<Double> probSelection = Enumerable.Range(0, population.Count).Select(i => i * 1.0 / totalFitness).ToList();
-			double[] cumProb = Enumerable.Range(0, population.Count).Select(i => probSelection.GetRange(0, i + 1).Sum()).ToArray();
+			var probSelection = Enumerable.Range(0, population.Count).Select(i => i * 1.0 / totalFitness).ToList();
+			var cumProb = Enumerable.Range(0, population.Count).Select(i => probSelection.GetRange(0, i + 1).Sum()).ToArray();
 
-			double[] selectIndices = Enumerable.Range(0, population.Count).Select(i => Configuration.Random()).ToArray();
+			var selectIndices = Enumerable.Range(0, population.Count).Select(i => Configuration.Random()).ToArray();
 
 			var parent = new T[2];
 			int parentIndex = 0;
