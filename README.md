@@ -108,7 +108,7 @@ If you are using C#, you would call GASchedule as follows:
     var configuration = new GaSchedule.Algorithm.Configuration();
     configuration.ParseFile("./GaSchedule.json");
 
-    var alg = new NsgaII<Schedule>(new Schedule(configuration));
+    var alg = new Ngra<Schedule>(new Schedule(configuration));
     alg.Run();
     var htmlResult = HtmlOutput.GetResult(alg.Result);
 ```
