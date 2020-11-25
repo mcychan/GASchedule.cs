@@ -27,7 +27,7 @@ namespace GaSchedule.Algorithm
 		private bool _isEmpty;
 
 		// Generate a random number  
-		private static Random random = new Random();
+		private static Random random = new Random(new System.DateTime().Millisecond);
 
 		// Initialize data
 		public Configuration()  {

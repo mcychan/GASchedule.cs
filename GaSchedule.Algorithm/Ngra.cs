@@ -43,10 +43,10 @@ namespace GaSchedule.Algorithm
 				if (!selected)
 					parent[parentIndex++ % 2] = population[sortedIndices[i]];
 
-				if (parentIndex > 0 && parentIndex % 2 == 0)
+				if (parentIndex % 2 == 0)
 				{
-					T child0 = parent[0].Crossover(parent[1], _numberOfCrossoverPoints, _crossoverProbability);
-					T child1 = parent[1].Crossover(parent[0], _numberOfCrossoverPoints, _crossoverProbability);
+					var child0 = parent[0].Crossover(parent[1], _numberOfCrossoverPoints, _crossoverProbability);
+					var child1 = parent[1].Crossover(parent[0], _numberOfCrossoverPoints, _crossoverProbability);
 					offspring.Add(child0);
 					offspring.Add(child1);
 				}
