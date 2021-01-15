@@ -156,7 +156,7 @@ namespace GaSchedule.Algorithm
 			{
 				// check probability of crossover operation
 				if (Configuration.Rand() % 100 > crossoverProbability || i == jrand) {
-					var courseClass = r1.Classes.Keys.ElementAt(i);
+					var courseClass = Classes.Keys.ElementAt(i);
 					var reservation1 = r1.Classes[courseClass];
 					var reservation2 = r2.Classes[courseClass];
 					var reservation3 = r3.Classes[courseClass];
@@ -172,7 +172,7 @@ namespace GaSchedule.Algorithm
 					int room = (int) (reservation3.Room + etaCross * (reservation1.Room - reservation2.Room));
 					if(room < 0)
 						room = 0;
-					else if(room >= Constant.DAYS_NUM)
+					else if(room >= nr)
 						room = nr - 1;
 					
 					int time = (int) (reservation3.Time + etaCross * (reservation1.Time - reservation2.Time));

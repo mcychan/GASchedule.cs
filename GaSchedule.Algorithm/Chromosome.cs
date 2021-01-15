@@ -20,6 +20,5 @@ namespace GaSchedule.Algorithm
 
         public int Rank { get; set; }
 
-        public bool Equals(Object obj);
     }
 }

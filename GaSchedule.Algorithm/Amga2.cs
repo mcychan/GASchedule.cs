@@ -176,15 +176,15 @@ namespace GaSchedule.Algorithm
 
 		private ISet<int> ExtractDistinctIndividuals(List<T> population, List<int> elite)
 		{
-			return elite.Distinct().OrderBy(e => population[e].Fitness).ToHashSet();
+			return elite.OrderBy(e => population[e].Fitness).ToHashSet();
 		}
 
 		private ISet<int> ExtractENNSPopulation(List<T> mixedPopulation, List<int> pool, int desiredEliteSize)
 		{
 			int poolSize = pool.Count;
 			int mixedSize = mixedPopulation.Count;
-			var filtered = pool.Where(index => float.IsPositiveInfinity(mixedPopulation[index].Diversity));
-			int numInf = filtered.Count();
+			var filtered = pool.Where(index => float.IsPositiveInfinity(mixedPopulation[index].Diversity)).ToHashSet();
+			int numInf = filtered.Count;
 
 			if (desiredEliteSize <= numInf)
 				return filtered.Take(desiredEliteSize).ToHashSet();
