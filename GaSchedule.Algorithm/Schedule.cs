@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace GaSchedule.Algorithm
@@ -63,7 +64,7 @@ namespace GaSchedule.Algorithm
 
 				// fill time-space slots, for each hour of class
 				for (int i = dur - 1; i >= 0; i--)
-					newChromosome.Slots[reservation.Index + i].Add(courseClass);
+					newChromosome.Slots[reservation.GetHashCode() + i].Add(courseClass);
 
 				// insert in class table of chromosome
 				newChromosome.Classes[courseClass] = reservation;
@@ -85,7 +86,7 @@ namespace GaSchedule.Algorithm
 			var n = Copy(this, true);
 
 			// number of classes
-			int size = (int)Classes.Count;
+			int size = Classes.Count;
 
 			var cp = new bool[size];
 
@@ -115,7 +116,7 @@ namespace GaSchedule.Algorithm
 					n.Classes[courseClass] = reservation;
 					// all time-space slots of class are copied
 					for (int j = courseClass.Duration - 1; j >= 0; j--)
-						n.Slots[reservation.Index + j].Add(courseClass);
+						n.Slots[reservation.GetHashCode() + j].Add(courseClass);
 				}
 				else
 				{
@@ -125,7 +126,7 @@ namespace GaSchedule.Algorithm
 					n.Classes[courseClass] = reservation;
 					// all time-space slots of class are copied
 					for (int j = courseClass.Duration - 1; j >= 0; j--)
-						n.Slots[reservation.Index + j].Add(courseClass);
+						n.Slots[reservation.GetHashCode() + j].Add(courseClass);
 				}
 
 				// crossover point
@@ -133,6 +134,71 @@ namespace GaSchedule.Algorithm
 					// change source chromosome
 					first = !first;
 			}
+
+			n.CalculateFitness();
+
+			// return smart pointer to offspring
+			return n;
+		}
+		
+		// Performes crossover operation using to chromosomes and returns pointer to offspring
+		public Schedule Crossover(Schedule parent, Schedule r1, Schedule r2, Schedule r3, float etaCross, float crossoverProbability)
+		{
+			// number of classes
+			int size = Classes.Count;
+			int jrand = Configuration.Rand(size);
+			
+			// new chromosome object, copy chromosome setup
+			var n = Copy(this, true);
+			
+			int nr = Configuration.NumberOfRooms;
+			for (int i = 0; i < size; ++i)
+			{
+				// check probability of crossover operation
+				if (Configuration.Rand() % 100 > crossoverProbability || i == jrand) {
+					var courseClass = r1.Classes.Keys.ElementAt(i);
+					var reservation1 = r1.Classes[courseClass];
+					var reservation2 = r2.Classes[courseClass];
+					var reservation3 = r3.Classes[courseClass];
+					
+					// determine random position of class				
+					int dur = courseClass.Duration;
+					int day = (int) (reservation3.Day + etaCross * (reservation1.Day - reservation2.Day));
+					if(day < 0)
+						day = 0;
+					else if(day >= Constant.DAYS_NUM)
+						day = Constant.DAYS_NUM - 1;
+					
+					int room = (int) (reservation3.Room + etaCross * (reservation1.Room - reservation2.Room));
+					if(room < 0)
+						room = 0;
+					else if(room >= Constant.DAYS_NUM)
+						room = nr - 1;
+					
+					int time = (int) (reservation3.Time + etaCross * (reservation1.Time - reservation2.Time));
+					if(time < 0)
+						time = 0;
+					else if(time >= (Constant.DAY_HOURS - dur))
+						time = Constant.DAY_HOURS - dur;
+
+					var reservation = new Reservation(nr, day, time, room);
+
+					// fill time-space slots, for each hour of class
+					for (int j = courseClass.Duration - 1; j >= 0; --j)
+						n.Slots[reservation.GetHashCode() + j].Add(courseClass);
+
+					// insert in class table of chromosome
+					n.Classes[courseClass] = reservation;
+				} else {
+					var courseClass = parent.Classes.Keys.ElementAt(i);
+					var reservation = parent.Classes[courseClass];
+					// insert class from second parent into new chromosome's class table
+					n.Classes[courseClass] = reservation;
+					// all time-space slots of class are copied
+					for (int j = courseClass.Duration - 1; j >= 0; --j)
+						n.Slots[reservation.GetHashCode() + j].Add(courseClass);
+				}
+			}			
 
 			n.CalculateFitness();
 
@@ -172,11 +238,11 @@ namespace GaSchedule.Algorithm
 				for (int j = dur - 1; j >= 0; j--)
 				{
 					// remove class hour from current time-space slot
-					var cl = Slots[reservation1.Index + j];
+					var cl = Slots[reservation1.GetHashCode() + j];
 					cl.RemoveAll(cc => cc == cc1);
 
 					// move class hour to new time-space slot
-					Slots[reservation2.Index + j].Add(cc1);
+					Slots[reservation2.GetHashCode() + j].Add(cc1);
 				}
 
 				// change entry of class table to point to new time-space slots
@@ -211,7 +277,7 @@ namespace GaSchedule.Algorithm
 				bool ro = false;
 				for (int i = dur - 1; i >= 0; i--)
 				{
-					if (Slots[reservation.Index + i].Count > 1)
+					if (Slots[reservation.GetHashCode() + i].Count > 1)
 					{
 						ro = true;
 						break;
@@ -305,5 +371,40 @@ namespace GaSchedule.Algorithm
 
         // Return reference to array of time-space slots
         public List<CourseClass>[] Slots { get; private set; }
-    }
+
+		public float Diversity { get; set; }
+
+		public int Rank { get; set; }
+
+		public override bool Equals(Object obj)
+		{
+			//Check for null and compare run-time types.
+			if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+				return false;
+
+			var other = (Schedule) obj;
+			foreach (var cc in Classes.Keys)
+			{
+				// coordinate of time-space slot
+				var reservation = Classes[cc];
+				var otherReservation = other.Classes[cc];
+				if (!reservation.Equals(otherReservation))
+					return false;
+			}
+			return true;
+		}
+
+		public override int GetHashCode()
+		{
+			const int prime = 31;
+			int result = 1;
+			foreach (var cc in Classes.Keys)
+			{
+				// coordinate of time-space slot
+				var reservation = Classes[cc];
+				result = prime * result + ((reservation == null) ? 0 : reservation.GetHashCode());
+			}
+			return result;
+		}
+	}
 }

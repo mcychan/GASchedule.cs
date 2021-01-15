@@ -236,7 +236,11 @@ namespace GaSchedule.Algorithm
 				++currentGeneration;
 			}
 		}
-	}
 
+		public override string ToString()
+		{
+			return "NSGA II";
+		}
+	}
 }
 

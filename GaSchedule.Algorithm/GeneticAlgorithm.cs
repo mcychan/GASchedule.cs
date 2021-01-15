@@ -224,5 +224,9 @@ namespace GaSchedule.Algorithm
 			}
 		}
 
+		public override string ToString()
+		{
+			return "Genetic Algorithm";
+		}
 	}
 }

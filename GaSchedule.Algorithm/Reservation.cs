@@ -6,10 +6,10 @@ namespace GaSchedule.Algorithm
 {
     public class Reservation
     {
-		private int nr;
-		private int day;
-		private int time;
-		private int room;
+		private readonly int nr;
+		private readonly int day;
+		private readonly int time;
+		private readonly int room;
 
 		public Reservation(int nr, int day, int time, int room)
 		{
@@ -26,12 +26,19 @@ namespace GaSchedule.Algorithm
 
 		public int Room { get { return room; } }
 
-		public int Index
+		public override bool Equals(Object obj)
 		{
-			get
-			{
-				return day * nr * Constant.DAY_HOURS + room * Constant.DAY_HOURS + time;
-			}
+			//Check for null and compare run-time types.
+			if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+				return false;
+
+			var other = (Reservation) obj;
+			return GetHashCode().Equals(other.GetHashCode());
+		}
+
+		public override int GetHashCode()
+		{
+			return day * nr * Constant.DAY_HOURS + room * Constant.DAY_HOURS + time;
 		}
 	}
 }

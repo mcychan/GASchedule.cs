@@ -62,5 +62,10 @@ namespace GaSchedule.Algorithm
 			population.Clear();
 			population.AddRange(offspring);
 		}
+
+		public override string ToString()
+		{
+			return "Non-dominated Ranking Genetic Algorithm (NRGA)";
+		}
 	}
 }
