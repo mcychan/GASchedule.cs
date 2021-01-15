@@ -4,13 +4,13 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>GaSchedule</AssemblyName>
-    <Copyright>Copyright © Miller Cy Chan 2020</Copyright>
+    <Copyright>Copyright © Miller Cy Chan 2021</Copyright>
     <Product>GaSchedule.cs</Product>
     <Authors>Miller Cy Chan</Authors>
     <Company>DNAssist ®</Company>
     <RootNamespace>GaSchedule</RootNamespace>
-    <Version>1.1.0</Version>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <Version>1.2.0</Version>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
