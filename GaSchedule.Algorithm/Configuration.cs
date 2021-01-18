@@ -21,7 +21,7 @@ namespace GaSchedule.Algorithm
 		private readonly Dictionary<int, Room> _rooms;
 
         // Generate a random number  
-        private static Random _random;
+        private static Random _random = new Random(new System.DateTime().Millisecond);
 
 		// Initialize data
 		public Configuration()  {

@@ -130,28 +130,28 @@ namespace GaSchedule.Algorithm
 				{
 					var hashArray = new float[] { 0.0f, population[indexArray[j]].Fitness, population[indexArray[j + 1]].Fitness };
 					var r = (hashArray[2] - hashArray[1]) / val;
-					population[indexArray[j]].Diversity += (float)(r * r);
+					population[indexArray[j]].Diversity += (r * r);
 				}
 				else if (j == size - 1)
 				{
 					var hashArray = new float[] { population[indexArray[j - 1]].Fitness, population[indexArray[j]].Fitness };
 					var l = (hashArray[1] - hashArray[0]) / val;
-					population[indexArray[j]].Diversity += (float)(l * l);
+					population[indexArray[j]].Diversity += (l * l);
 				}
 				else
 				{
 					var hashArray = new float[] { population[indexArray[j - 1]].Fitness, population[indexArray[j]].Fitness, population[indexArray[j + 1]].Fitness };
 					var l = (hashArray[1] - hashArray[0]) / val;
 					var r = (hashArray[2] - hashArray[1]) / val;
-					population[indexArray[j]].Diversity += (float)(l * r);
+					population[indexArray[j]].Diversity += (l * r);
 				}
 			}
 		}
 
 		private void CreateOffspringPopulation()
 		{
-			int r1, r2, r3;
-			for (int i = 0; i < _populationSize; ++i) {
+			int r1, r2, r3;			
+			for (int i = 0; i < _populationSize; ++i) {				
 				do
 				{
 					r1 = Configuration.Rand(_currentArchiveSize);
@@ -211,10 +211,12 @@ namespace GaSchedule.Algorithm
 			var distArray = new List<DistanceMatrix>();
 			for (int i = 0; i < poolSize; ++i) {
 				for (int j = i + 1; j < poolSize; ++j) {
-					var distMatrix = new DistanceMatrix();
-					distMatrix.index1 = indexArray[i];
-					distMatrix.index2 = indexArray[j];
-					distance[j, i] = distance[i, j] = distMatrix.distance = Math.Abs(mixedPopulation[distMatrix.index1].Fitness - mixedPopulation[distMatrix.index2].Fitness);
+                    var distMatrix = new DistanceMatrix
+                    {
+                        index1 = indexArray[i],
+                        index2 = indexArray[j]
+                    };
+                    distance[j, i] = distance[i, j] = distMatrix.distance = Math.Abs(mixedPopulation[distMatrix.index1].Fitness - mixedPopulation[distMatrix.index2].Fitness);
 					distArray.Add(distMatrix);
 				}
 			}
@@ -287,8 +289,9 @@ namespace GaSchedule.Algorithm
 			
 			while (elite.Count > desiredEliteSize)
 			{
-				pool.Add(elite.First());
-				elite.Remove(elite.First());
+				var temp = elite.FirstOrDefault();
+				pool.Add(temp);
+				elite.Remove(temp);
 			}
 			return elite;
 		}
@@ -299,28 +302,28 @@ namespace GaSchedule.Algorithm
 				return false;
 
 			var remains = new List<int>();
-			elite.Add(pool[0]);
-			pool.RemoveAt(0);			
+			var index1 = pool.FirstOrDefault();
+			elite.Add(index1);
+			pool.Remove(index1);			
 
 			while (pool.Any())
 			{
-				int index1 = pool[0];
-				pool.RemoveAt(0);
+				index1 = pool.FirstOrDefault();
+				pool.Remove(index1);
 				int flag = -1;
-				int j = 0;
-				while (j < elite.Count)
+				int index2 = 0;
+				while (index2 < elite.Count)
 				{
-					int index2 = j;
 					flag = CheckDomination(population[index1], population[index2]);
 					if (flag == 1)
 					{
 						remains.Add(index2);
-						elite.RemoveAt(j);
+						elite.RemoveAt(index2);
 					}
 					else if (flag == -1)
 						break;
 					else
-						++j;
+						++index2;
 				}
 
 				if (flag > -1)
@@ -404,7 +407,7 @@ namespace GaSchedule.Algorithm
 		private void MutateOffspringPopulation()
 		{
 			for (int i = 0; i < _populationSize; ++i) {				
-				float pMut = _mutationProbability + (1.0f - _mutationProbability) * ((float)(_offspringPopulation[i].Rank - 1) / (_currentArchiveSize - 1)); //rank-based variation
+				var pMut = _mutationProbability + (1.0f - _mutationProbability) * ((float)(_offspringPopulation[i].Rank - 1) / (_currentArchiveSize - 1)); //rank-based variation
 				_offspringPopulation[i].Mutation(_mutationSize, pMut);
 			}
 		}
