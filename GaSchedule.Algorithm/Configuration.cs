@@ -9,34 +9,29 @@ namespace GaSchedule.Algorithm
     public class Configuration
     {
 		// Parsed professors
-		private Dictionary<int, Professor> _professors;
+		private readonly Dictionary<int, Professor> _professors;
 
 		// Parsed student groups
-		private Dictionary<int, StudentsGroup> _studentGroups;
+		private readonly Dictionary<int, StudentsGroup> _studentGroups;
 
 		// Parsed courses
-		private Dictionary<int, Course> _courses;
+		private readonly Dictionary<int, Course> _courses;
 
 		// Parsed rooms
-		private Dictionary<int, Room> _rooms;
+		private readonly Dictionary<int, Room> _rooms;
 
-		// Parsed classes
-		private List<CourseClass> _courseClasses;
-
-		// Inidicate that configuration is not parsed yet
-		private bool _isEmpty;
-
-		// Generate a random number  
-		private static Random random = new Random(new System.DateTime().Millisecond);
+        // Generate a random number  
+        private static Random _random;
 
 		// Initialize data
 		public Configuration()  {
-			_isEmpty = true;
+			Empty = true;
 			_professors = new Dictionary<int, Professor>();
 			_studentGroups = new Dictionary<int, StudentsGroup>();
 			_courses = new Dictionary<int, Course>();
 			_rooms = new Dictionary<int, Room>();
-			_courseClasses = new List<CourseClass>();
+			CourseClasses = new List<CourseClass>();
+			_random = new Random(new System.DateTime().Millisecond);
 		}
 
 		// Returns professor with specified ID
@@ -86,16 +81,16 @@ namespace GaSchedule.Algorithm
 		// Returns number of parsed rooms
 		public int NumberOfRooms => _rooms.Count;
 
-		// Returns reference to list of parsed classes
-		public List<CourseClass> CourseClasses => _courseClasses;
+        // Returns reference to list of parsed classes
+        public List<CourseClass> CourseClasses { get; }
 
-		// Returns number of parsed classes
-		public int NumberOfCourseClasses => _courseClasses.Count;
+        // Returns number of parsed classes
+        public int NumberOfCourseClasses => CourseClasses.Count;
 
-		// Returns TRUE if configuration is not parsed yet
-		public bool Empty => _isEmpty;
+        // Returns TRUE if configuration is not parsed yet
+        public bool Empty { get; private set; }
 
-		private static void GetMember<T>(JsonElement element, ref T value)
+        private static void GetMember<T>(JsonElement element, ref T value)
 		{
 			switch (element.ValueKind)
 			{
@@ -268,7 +263,7 @@ namespace GaSchedule.Algorithm
 			_studentGroups.Clear();
 			_courses.Clear();
 			_rooms.Clear();
-			_courseClasses.Clear();
+			CourseClasses.Clear();
 
 			Room.RestartIDs();
 
@@ -297,21 +292,26 @@ namespace GaSchedule.Algorithm
 							break;
 						case "class":
 							var courseClass = ParseCourseClass(obj.Value);
-							_courseClasses.Add(courseClass);
+							CourseClasses.Add(courseClass);
 							break;
 					}
 				}
 			}
-			_isEmpty = false;
+			Empty = false;
 		}
 
 		public static int Rand()
 		{
-			return random.Next(0, 32767);
+			return _random.Next(0, 32767);
 		}
 		public static double Random()
 		{
-			return random.NextDouble();
+			return _random.NextDouble();
+		}
+
+		public static int Rand(int size)
+		{
+			return _random.Next(size);
 		}
 
 	}
