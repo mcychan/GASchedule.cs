@@ -117,33 +117,32 @@ namespace GaSchedule.Algorithm
 			}
 			
 			int size = distinct.Count;
-			var indexArray = distinct.ToArray();
 
-			Array.ForEach(indexArray, e => population[e].Diversity = 0.0f);
+			distinct.ForEach(e => population[e].Diversity = 0.0f);
 
-			var val = population[indexArray[size - 1]].Fitness - population[indexArray[0]].Fitness;
+			var val = population[distinct[size - 1]].Fitness - population[distinct[0]].Fitness;
 			if (val == 0)
 				return;
 
 			for (int j = 0; j < size; j++) {						
 				if (j == 0)
 				{
-					var hashArray = new float[] { 0.0f, population[indexArray[j]].Fitness, population[indexArray[j + 1]].Fitness };
+					var hashArray = new float[] { 0.0f, population[distinct[j]].Fitness, population[distinct[j + 1]].Fitness };
 					var r = (hashArray[2] - hashArray[1]) / val;
-					population[indexArray[j]].Diversity += (r * r);
+					population[distinct[j]].Diversity += (r * r);
 				}
 				else if (j == size - 1)
 				{
-					var hashArray = new float[] { population[indexArray[j - 1]].Fitness, population[indexArray[j]].Fitness };
+					var hashArray = new float[] { population[distinct[j - 1]].Fitness, population[distinct[j]].Fitness };
 					var l = (hashArray[1] - hashArray[0]) / val;
-					population[indexArray[j]].Diversity += (l * l);
+					population[distinct[j]].Diversity += (l * l);
 				}
 				else
 				{
-					var hashArray = new float[] { population[indexArray[j - 1]].Fitness, population[indexArray[j]].Fitness, population[indexArray[j + 1]].Fitness };
+					var hashArray = new float[] { population[distinct[j - 1]].Fitness, population[distinct[j]].Fitness, population[distinct[j + 1]].Fitness };
 					var l = (hashArray[1] - hashArray[0]) / val;
 					var r = (hashArray[2] - hashArray[1]) / val;
-					population[indexArray[j]].Diversity += (l * r);
+					population[distinct[j]].Diversity += (l * r);
 				}
 			}
 		}
@@ -176,7 +175,7 @@ namespace GaSchedule.Algorithm
 
 		private List<int> ExtractDistinctIndividuals(List<T> population, List<int> elite)
 		{
-			return elite.OrderBy(e => population[e].Fitness).Distinct().ToList();
+			return elite.Distinct().OrderBy(e => population[e].Fitness).ToList();
 		}
 
 		private List<int> ExtractENNSPopulation(List<T> mixedPopulation, List<int> pool, int desiredEliteSize)
@@ -289,7 +288,7 @@ namespace GaSchedule.Algorithm
 			
 			while (elite.Count > desiredEliteSize)
 			{
-				var temp = elite.FirstOrDefault();
+				var temp = elite[0];
 				pool.Add(temp);
 				elite.Remove(temp);
 			}
@@ -302,13 +301,13 @@ namespace GaSchedule.Algorithm
 				return false;
 
 			var remains = new List<int>();
-			var index1 = pool.FirstOrDefault();
+			var index1 = pool[0];
 			elite.Add(index1);
 			pool.Remove(index1);			
 
 			while (pool.Any())
 			{
-				index1 = pool.FirstOrDefault();
+				index1 = pool[0];
 				pool.Remove(index1);
 				int flag = -1;
 				int index2 = 0;
@@ -438,12 +437,8 @@ namespace GaSchedule.Algorithm
 
 		private void FinalizePopulation()
 		{
-			var pool = new List<int>();
 			var elite = new List<int>();
-			for (int i = 0; i < _currentArchiveSize; ++i) {
-				if (_archivePopulation[i].Fitness >= 0.0)
-					pool.Add(i);
-			}
+			var pool = Enumerable.Range(0, _currentArchiveSize).Where(i => _archivePopulation[i].Fitness >= 0.0).ToList();
 
 			if (pool.Any())
 			{
