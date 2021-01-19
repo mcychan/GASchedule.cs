@@ -178,7 +178,7 @@ namespace GaSchedule.Algorithm
 					int time = (int) (reservation3.Time + etaCross * (reservation1.Time - reservation2.Time));
 					if(time < 0)
 						time = 0;
-					else if(time >= (Constant.DAY_HOURS - dur))
+					else if(time >= (Constant.DAY_HOURS + 1 - dur))
 						time = Constant.DAY_HOURS - dur;
 
 					var reservation = new Reservation(nr, day, time, room);
