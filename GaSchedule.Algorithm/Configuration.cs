@@ -21,7 +21,7 @@ namespace GaSchedule.Algorithm
 		private readonly Dictionary<int, Room> _rooms;
 
         // Generate a random number  
-        private static Random _random = new Random(new System.DateTime().Millisecond);
+        private static Random _random = new Random(DateTime.Now.Millisecond);
 
 		// Initialize data
 		public Configuration()  {
@@ -31,7 +31,6 @@ namespace GaSchedule.Algorithm
 			_courses = new Dictionary<int, Course>();
 			_rooms = new Dictionary<int, Room>();
 			CourseClasses = new List<CourseClass>();
-			_random = new Random(new System.DateTime().Millisecond);
 		}
 
 		// Returns professor with specified ID
