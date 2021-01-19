@@ -503,6 +503,7 @@ namespace GaSchedule.Algorithm
 				CreateOffspringPopulation();
 				MutateOffspringPopulation();
 				UpdateArchivePopulation();
+				Configuration.Seed();
 				++currentGeneration;
 			}
 		}

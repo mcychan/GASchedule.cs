@@ -220,6 +220,7 @@ namespace GaSchedule.Algorithm
 
 				Replacement(_chromosomes);
 
+				Configuration.Seed();
 				lastBestFit = best.Fitness;
 			}
 		}

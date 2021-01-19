@@ -233,6 +233,7 @@ namespace GaSchedule.Algorithm
 					_chromosomes = Selection(newBestFront, totalChromosome).ToArray();
 					lastBestFit = best.Fitness;
 				}
+				Configuration.Seed();
 				++currentGeneration;
 			}
 		}

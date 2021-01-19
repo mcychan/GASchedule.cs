@@ -313,5 +313,10 @@ namespace GaSchedule.Algorithm
 			return _random.Next(size);
 		}
 
+		public static void Seed()
+		{
+			_random = new Random(DateTime.Now.Millisecond);
+		}
+
 	}
 }
