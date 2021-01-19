@@ -174,22 +174,22 @@ namespace GaSchedule.Algorithm
 			return a.Fitness.CompareTo(b.Fitness);
 		}
 
-		private ISet<int> ExtractDistinctIndividuals(List<T> population, List<int> elite)
+		private List<int> ExtractDistinctIndividuals(List<T> population, List<int> elite)
 		{
-			return elite.OrderBy(e => population[e].Fitness).ToHashSet();
+			return elite.OrderBy(e => population[e].Fitness).Distinct().ToList();
 		}
 
-		private ISet<int> ExtractENNSPopulation(List<T> mixedPopulation, List<int> pool, int desiredEliteSize)
+		private List<int> ExtractENNSPopulation(List<T> mixedPopulation, List<int> pool, int desiredEliteSize)
 		{
 			int poolSize = pool.Count;
 			int mixedSize = mixedPopulation.Count;
-			var filtered = pool.Where(index => float.IsPositiveInfinity(mixedPopulation[index].Diversity)).ToHashSet();
+			var filtered = pool.Where(index => float.IsPositiveInfinity(mixedPopulation[index].Diversity)).Distinct().ToList();
 			int numInf = filtered.Count;
 
 			if (desiredEliteSize <= numInf)
-				return filtered.Take(desiredEliteSize).ToHashSet();
+				return filtered.Take(desiredEliteSize).ToList();
 
-			var elite = pool.ToHashSet();
+			var elite = pool.Distinct().ToList();
 			pool.Clear();
 			if (desiredEliteSize >= elite.Count)
 				return elite;

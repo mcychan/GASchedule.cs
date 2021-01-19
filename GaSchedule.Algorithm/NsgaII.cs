@@ -128,7 +128,7 @@ namespace GaSchedule.Algorithm
 					if (N > _populationSize)
 					{
 						var distance = CalculateCrowdingDistance(row, totalChromosome);
-						var sortedCdf = distance.OrderBy(e => e.Value).Select(e => e.Key).Reverse().ToHashSet();
+						var sortedCdf = distance.OrderBy(e => e.Value).Select(e => e.Key).Reverse().Distinct().ToList();
 						foreach (int j in sortedCdf)
 						{
 							if (newPop.Count >= _populationSize)
