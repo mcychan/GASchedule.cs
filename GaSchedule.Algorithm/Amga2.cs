@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace GaSchedule.Algorithm
 {
-    /****************** Archive-Based Steady-State Micro Genetic Algorithm(AMGA2) **********************/
+    /****************** Archive-based Micro Genetic Algorithm(AMGA2) **********************/
     public class Amga2<T> where T : Chromosome<T>
 	{
 		// Population of chromosomes
