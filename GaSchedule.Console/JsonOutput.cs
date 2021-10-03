@@ -67,7 +67,7 @@ namespace GaSchedule
 					timeTable[key] = roomSchedule;
 				}
 				sb.Append("\"Course\": \"").Append(cc.Course.Name).Append("\"");
-				sb.Append(", \"Prosfessor\": \"").Append(cc.Professor.Name).Append("\"");
+				sb.Append(", \"Professor\": \"").Append(cc.Professor.Name).Append("\"");
 				sb.Append(", \"Groups\": \"").Append(string.Join("/", cc.Groups.Select(grp => grp.Name).ToArray()));
 				sb.Append("\", ");
 				if (cc.LabRequired)
@@ -165,7 +165,7 @@ namespace GaSchedule
 				}
 			}
 
-			return "{" + sb.Replace("\\u022", "\"") + "}";
+			return "{" + sb + "}";
 		}
 
 	}
