@@ -49,25 +49,25 @@ namespace GaSchedule
 			{
 				// coordinate of time-space slot
 				var reservation = classes[cc];
-				int day = reservation.Day + 1;
-				int time = reservation.Time + 1;
-				int room = reservation.Room;
+				int dayId = reservation.Day + 1;
+				int periodId = reservation.Time + 1;
+				int roomId = reservation.Room;
 
-				var key = new Point(time, room);
+				var key = new Point(periodId, roomId);
 				var roomDuration = slotTable.ContainsKey(key) ? slotTable[key] : null;
 				if (roomDuration == null)
 				{
 					roomDuration = new int[ROOM_COLUMN_NUMBER];
 					slotTable[key] = roomDuration;
 				}
-				roomDuration[day] = cc.Duration;
+				roomDuration[dayId] = cc.Duration;
 				for (int m = 1; m < cc.Duration; ++m)
 				{
-					var nextRow = new Point(time + m, room);
+					var nextRow = new Point(periodId + m, roomId);
 					if (!slotTable.ContainsKey(nextRow))
 						slotTable.Add(nextRow, new int[ROOM_COLUMN_NUMBER]);
-					if (slotTable[nextRow][day] < 1)
-						slotTable[nextRow][day] = -1;
+					if (slotTable[nextRow][dayId] < 1)
+						slotTable[nextRow][dayId] = -1;
 				}
 
 				var roomSchedule = timeTable.ContainsKey(key) ? timeTable[key] : null;
@@ -98,7 +98,7 @@ namespace GaSchedule
 					sb.Append("'> ").Append(CRITERIAS[i]);
 					sb.Append(" </span>");
 				}
-				roomSchedule[day] = sb.ToString();
+				roomSchedule[dayId] = sb.ToString();
 				ci += CRITERIAS.Length;
 			}
 			return timeTable;
@@ -133,12 +133,12 @@ namespace GaSchedule
 			if (slotTable.Count == 0 || timeTable.Count == 0)
 				return "";
 
-			for (int k = 0; k < nr; k++)
+			for (int roomId = 0; roomId < nr; ++roomId)
 			{
-				var room = solution.Configuration.GetRoomById(k);
-				for (int j = 0; j < ROOM_ROW_NUMBER; ++j)
+				var room = solution.Configuration.GetRoomById(roomId);
+				for (int periodId = 0; periodId < ROOM_ROW_NUMBER; ++periodId)
 				{
-					if (j == 0)
+					if (periodId == 0)
 					{
 						sb.Append("<div id='room_").Append(room.Name).Append("' style='padding: 0.5em'>\n");
 						sb.Append("<table style='border-collapse: collapse; width: 95%'>\n");
@@ -146,7 +146,7 @@ namespace GaSchedule
 					}
 					else
                     {						
-						var key = new Point(j, k);							
+						var key = new Point(periodId, roomId);							
 						var roomDuration = slotTable.ContainsKey(key) ? slotTable[key] : null;
 						var roomSchedule = timeTable.ContainsKey(key) ? timeTable[key] : null;
 						sb.Append("<tr>");
@@ -154,7 +154,7 @@ namespace GaSchedule
 						{
 							if(i == 0)
                             {
-								sb.Append("<th style='border: 1px solid black; padding: 5px' scope='row' colspan='2'>").Append(PERIODS[j]).Append("</th>\n");
+								sb.Append("<th style='border: 1px solid black; padding: 5px' scope='row' colspan='2'>").Append(PERIODS[periodId]).Append("</th>\n");
 								continue;
 							}
 
@@ -167,7 +167,7 @@ namespace GaSchedule
 						sb.Append("</tr>\n");							
 					}
 
-					if (j == ROOM_ROW_NUMBER - 1)
+					if (periodId == ROOM_ROW_NUMBER - 1)
 						sb.Append("</table>\n</div>\n");
 				}
 			}
