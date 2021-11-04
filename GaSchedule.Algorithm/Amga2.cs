@@ -96,12 +96,13 @@ namespace GaSchedule.Algorithm
 			}
 		}
 
-		private void AssignInfiniteDiversity(List<T> population, List<int> elite)
+		private void AssignInfiniteDiversity(List<T> population, IEnumerable<int> elite)
 		{
-			elite.ForEach(index => population[index].Diversity = float.PositiveInfinity);		
+			foreach(var index in elite)
+				population[index].Diversity = float.PositiveInfinity;		
 		}
 
-		private void AssignDiversityMetric(List<T> population, List<int> elite)
+		private void AssignDiversityMetric(List<T> population, Queue<int> elite)
 		{
 			if (elite.Count <= 2)
             {
@@ -173,12 +174,12 @@ namespace GaSchedule.Algorithm
 			return a.Fitness.CompareTo(b.Fitness);
 		}
 
-		private List<int> ExtractDistinctIndividuals(List<T> population, List<int> elite)
+		private List<int> ExtractDistinctIndividuals(List<T> population, Queue<int> elite)
 		{
 			return elite.Distinct().OrderBy(e => population[e].Fitness).ToList();
 		}
 
-		private List<int> ExtractENNSPopulation(List<T> mixedPopulation, List<int> pool, int desiredEliteSize)
+		private List<int> ExtractENNSPopulation(List<T> mixedPopulation, Queue<int> pool, int desiredEliteSize)
 		{
 			int poolSize = pool.Count;
 			int mixedSize = mixedPopulation.Count;
@@ -241,13 +242,13 @@ namespace GaSchedule.Algorithm
 				if (float.IsPositiveInfinity(mixedPopulation[index1].Diversity))
 				{
 					elite.Remove(index2);
-					pool.Add(index2);
+					pool.Enqueue(index2);
 					originalArray[index2] = -1;
 				}
 				else if (float.IsPositiveInfinity(mixedPopulation[index2].Diversity))
 				{
 					elite.Remove(index1);
-					pool.Add(index1);
+					pool.Enqueue(index1);
 					originalArray[index1] = -1;
 				}
 				else
@@ -274,13 +275,13 @@ namespace GaSchedule.Algorithm
 					if (dist1 < dist2)
 					{
 						elite.Remove(index1);
-						pool.Add(index1);
+						pool.Enqueue(index1);
 						originalArray[index1] = -1;
 					}
 					else
 					{
 						elite.Remove(index2);
-						pool.Add(index2);
+						pool.Enqueue(index2);
 						originalArray[index2] = -1;
 					}
 				}
@@ -289,26 +290,24 @@ namespace GaSchedule.Algorithm
 			while (elite.Count > desiredEliteSize)
 			{
 				var temp = elite[0];
-				pool.Add(temp);
+				pool.Enqueue(temp);
 				elite.Remove(temp);
 			}
 			return elite;
 		}
 
-		private bool ExtractBestRank(List<T> population, List<int> pool, List<int> elite)
+		private bool ExtractBestRank(List<T> population, Queue<int> pool, List<int> elite)
 		{
 			if (!pool.Any())
 				return false;
 
 			var remains = new List<int>();
-			var index1 = pool[0];
-			elite.Add(index1);
-			pool.Remove(index1);			
+			var index1 = pool.Dequeue();
+			elite.Add(index1);			
 
 			while (pool.Any())
 			{
-				index1 = pool[0];
-				pool.Remove(index1);
+				index1 = pool.Dequeue();
 				int flag = -1;
 				int index2 = 0;
 				while (index2 < elite.Count)
@@ -331,25 +330,28 @@ namespace GaSchedule.Algorithm
 					remains.Add(index1);
 			}
 			pool.Clear();
-			pool.AddRange(remains);
+			remains.ForEach(r => pool.Enqueue(r));
 			return true;
 		}
 
 		private void FillBestPopulation(List<T> mixedPopulation, int mixedLength, List<T> population, int populationLength)
 		{
-			var pool = Enumerable.Range(0, mixedLength).ToList();
-			var elite = new List<int>();
+			var pool = new Queue<int>(Enumerable.Range(0, mixedLength));
+			var elite = new Queue<int>();
 			var filled = new List<int>();
 			int rank = 1;
 
-			pool.ForEach(index => mixedPopulation[index].Diversity = 0.0f);
+			foreach(var index in pool)
+				mixedPopulation[index].Diversity = 0.0f;
 
 			bool hasBetter = true;
 			while (hasBetter && filled.Count < populationLength)
 			{
-				hasBetter = ExtractBestRank(mixedPopulation, pool, elite);
-				elite.ForEach(index => mixedPopulation[index].Rank = rank);
+				var elites = elite.ToList();
+				hasBetter = ExtractBestRank(mixedPopulation, pool, elites);
+				elites.ForEach(index => mixedPopulation[index].Rank = rank);
 
+				elite = new Queue<int>(elites);
 				if (rank++ == 1)
 					AssignInfiniteDiversity(mixedPopulation, elite);
 
@@ -369,7 +371,7 @@ namespace GaSchedule.Algorithm
 			filled.ForEach(index => population[j++] = mixedPopulation[index]);
 		}
 
-		private void FillDiversePopulation(List<T> mixedPopulation, List<int> pool, List<T> population, int startLocation, int desiredSize)
+		private void FillDiversePopulation(List<T> mixedPopulation, Queue<int> pool, List<T> population, int startLocation, int desiredSize)
 		{
 			AssignDiversityMetric(mixedPopulation, pool);
 			int poolSize = pool.Count;
@@ -381,9 +383,9 @@ namespace GaSchedule.Algorithm
 
 		private void CreateParentPopulation()
 		{
-			var pool = Enumerable.Range(0, _currentArchiveSize).ToList();
+			var pool = new Queue<int>(Enumerable.Range(0, _currentArchiveSize));
 			var elite = new List<int>();
-			var selectionPool = new List<int>();
+			var selectionPool = new Queue<int>();
 
 			int rank = 1;
 			while (selectionPool.Count < _populationSize)
@@ -392,14 +394,15 @@ namespace GaSchedule.Algorithm
 				foreach (int i in elite)
 				{
 					_archivePopulation[i].Rank = rank;
-					selectionPool.Add(i);
+					selectionPool.Enqueue(i);
 				}
 				++rank;
 				elite.Clear();
 			}
 
 			int j = 0;
-			selectionPool.ForEach(i => _parentPopulation[j++] = _archivePopulation[i]);
+			foreach(var i in selectionPool)
+				_parentPopulation[j++] = _archivePopulation[i];
 			FillDiversePopulation(_archivePopulation, selectionPool, _parentPopulation, j, _populationSize - j);
 		}
 
@@ -438,7 +441,7 @@ namespace GaSchedule.Algorithm
 		private void FinalizePopulation()
 		{
 			var elite = new List<int>();
-			var pool = Enumerable.Range(0, _currentArchiveSize).Where(i => _archivePopulation[i].Fitness >= 0.0).ToList();
+			var pool = new Queue<int>(Enumerable.Range(0, _currentArchiveSize).Where(i => _archivePopulation[i].Fitness >= 0.0));
 
 			if (pool.Any())
 			{
@@ -450,7 +453,7 @@ namespace GaSchedule.Algorithm
 
 					AssignInfiniteDiversity(_archivePopulation, elite);
 					ExtractENNSPopulation(_archivePopulation, pool, _populationSize);
-					elite = pool;
+					elite = pool.ToList();
 				}
 				_currentArchiveSize = elite.Count;
 				int i = 0;
