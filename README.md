@@ -112,3 +112,12 @@ If you are using C#, you would call GASchedule as follows:
     alg.Run();
     var htmlResult = HtmlOutput.GetResult(alg.Result);
 ```
+For Json output:
+```cs
+    var configuration = new GaSchedule.Algorithm.Configuration();
+    configuration.ParseFile("./GaSchedule.json");
+
+    var alg = new Ngra<Schedule>(new Schedule(configuration));
+    alg.Run();
+    var jsonResult = JsonOutput.GetResult(alg.Result);
+```
