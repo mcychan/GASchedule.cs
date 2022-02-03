@@ -500,6 +500,7 @@ namespace GaSchedule.Algorithm
 
 					if (repeat > (maxRepeat / 100))
 						++_crossoverProbability;
+					lastBestFit = best.Fitness;
 				}
 
 				CreateParentPopulation();
