@@ -23,15 +23,15 @@ namespace GaSchedule
 		private static string GetTableHeader(Room room)
 		{
 			StringBuilder sb = new StringBuilder();
-			sb.Append("<tr><th style='border: 1px solid black' scope='col' colspan='2'>Room: ");
+			sb.Append("<tr><th style='border: .1em solid black' scope='col' colspan='2'>Room: ");
 			sb.Append(room.Name);
 			sb.Append("</th>\n");
 			foreach(string weekDay in WEEK_DAYS)
-			sb.Append("<th style='border: 1px solid black; padding: 5px; width: 15%' scope='col' rowspan='2'>").Append(weekDay).Append("</th>\n");
+			sb.Append("<th style='border: .1em solid black; padding: .25em; width: 15%' scope='col' rowspan='2'>").Append(weekDay).Append("</th>\n");
 			sb.Append("</tr>\n");
 			sb.Append("<tr>\n");
-			sb.Append("<th style='border: 1px solid black; padding: 5px'>Lab: ").Append(room.Lab).Append("</th>\n");
-			sb.Append("<th style='border: 1px solid black; padding: 5px'>Seats: ").Append(room.NumberOfSeats).Append("</th>\n");
+			sb.Append("<th style='border: .1em solid black; padding: .25em'>Lab: ").Append(room.Lab ? "Yes" : "No").Append("</th>\n");
+			sb.Append("<th style='border: .1em solid black; padding: .25em'>Seats: ").Append(room.NumberOfSeats).Append("</th>\n");
 			sb.Append("</tr>\n");
 			return sb.ToString();
 		}
@@ -83,15 +83,15 @@ namespace GaSchedule
 					sb.Append("Lab<br />");
 
 				for(int i=0; i< CRITERIAS.Length; ++i)
-                {
+				{
 					sb.Append("<span style='color:");
 					if(solution.Criteria[ci + i])
-                    {
+					{
 						sb.Append(COLOR1).Append("' title='");
 						sb.Append(string.Format(CRITERIAS_DESCR[i], (i == 1 || i == 2) ? "" : "no "));
 					}
 					else
-                    {
+					{
 						sb.Append(COLOR2).Append("' title='");
 						sb.Append(string.Format(CRITERIAS_DESCR[i], (i == 1 || i == 2) ? "not " : ""));
 					}
@@ -105,7 +105,7 @@ namespace GaSchedule
 		}
 
 		private static string GetHtmlCell(string content, int rowspan)
-        {
+		{
 			if (rowspan == 0)
 				return "<td></td>";
 
@@ -114,9 +114,9 @@ namespace GaSchedule
 
 			StringBuilder sb = new StringBuilder();
 			if (rowspan > 1)
-				sb.Append("<td style='border: 1px solid black; padding: 5px' rowspan='").Append(rowspan).Append("'>");
+				sb.Append("<td style='border: .1em solid black; padding: .25em' rowspan='").Append(rowspan).Append("'>");
 			else
-				sb.Append("<td style='border: 1px solid black; padding: 5px'>");
+				sb.Append("<td style='border: .1em solid black; padding: .25em'>");
 
 			sb.Append(content);
 			sb.Append("</td>");
@@ -145,7 +145,7 @@ namespace GaSchedule
 						sb.Append(GetTableHeader(room));
 					}
 					else
-                    {						
+					{						
 						var key = new Point(periodId, roomId);							
 						var roomDuration = slotTable.ContainsKey(key) ? slotTable[key] : null;
 						var roomSchedule = timeTable.ContainsKey(key) ? timeTable[key] : null;
@@ -153,8 +153,8 @@ namespace GaSchedule
 						for (int i = 0; i < ROOM_COLUMN_NUMBER; ++i)
 						{
 							if(i == 0)
-                            {
-								sb.Append("<th style='border: 1px solid black; padding: 5px' scope='row' colspan='2'>").Append(PERIODS[periodId]).Append("</th>\n");
+							{
+								sb.Append("<th style='border: .1em solid black; padding: .25em' scope='row' colspan='2'>").Append(PERIODS[periodId]).Append("</th>\n");
 								continue;
 							}
 
