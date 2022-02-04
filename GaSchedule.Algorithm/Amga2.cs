@@ -492,14 +492,14 @@ namespace GaSchedule.Algorithm
 						break;
 					}
 
-					double difference = Math.Abs(best.Fitness - lastBestFit);
+					var difference = Math.Abs(best.Fitness - lastBestFit);
 					if (difference <= 0.0000001)
 						++repeat;
 					else
 						repeat = 0;
 
 					if (repeat > (maxRepeat / 100))
-						++_crossoverProbability;
+						++_mutationProbability;
 					lastBestFit = best.Fitness;
 				}
 
