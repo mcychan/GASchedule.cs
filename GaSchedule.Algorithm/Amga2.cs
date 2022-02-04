@@ -462,6 +462,14 @@ namespace GaSchedule.Algorithm
 			else
 				_currentArchiveSize = 0;
 		}
+		
+		private void Reform()
+		{		
+			if(_crossoverProbability < 95)
+				_crossoverProbability += 1.0f;
+			else if(_mutationProbability < 30)
+				_mutationProbability += 1.0f;
+		}
 
 		// Starts and executes algorithm
 		public void Run(int maxRepeat = 9999, double minFitness = 0.999)
@@ -499,7 +507,7 @@ namespace GaSchedule.Algorithm
 						repeat = 0;
 
 					if (repeat > (maxRepeat / 100))
-						++_mutationProbability;
+						Reform();
 					lastBestFit = best.Fitness;
 				}
 
