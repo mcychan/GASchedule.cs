@@ -168,9 +168,17 @@ namespace GaSchedule.Algorithm
 			for (int i = 0; i < _populationSize; ++i)
 				population.Add(_prototype.MakeNewFromPrototype());
 		}
+        private void Reform()
+        {
+            Configuration.Seed();
+            if (_crossoverProbability < 95)
+                _crossoverProbability += 1.0f;
+            else if (_mutationProbability < 30)
+                _mutationProbability += 1.0f;
+        }
 
-		// Starts and executes algorithm
-		public void Run(int maxRepeat = 9999, double minFitness = 0.999)
+        // Starts and executes algorithm
+        public void Run(int maxRepeat = 9999, double minFitness = 0.999)
 		{
 			if (_prototype == null)
 				return;
@@ -202,8 +210,9 @@ namespace GaSchedule.Algorithm
 						repeat = 0;
 
 					if (repeat > (maxRepeat / 100))
-						++_crossoverProbability;
-				}
+						Reform();
+
+                }
 
 				/******************* crossover *****************/
 				var offspring = Replacement(population);
@@ -233,7 +242,6 @@ namespace GaSchedule.Algorithm
 					_chromosomes = Selection(newBestFront, totalChromosome).ToArray();
 					lastBestFit = best.Fitness;
 				}
-				Configuration.Seed();
 				++currentGeneration;
 			}
 		}

@@ -214,13 +214,13 @@ namespace GaSchedule.Algorithm
 
 				if (repeat > (maxRepeat / 100))
 				{
-					ReplaceByGeneration = _replaceByGeneration * 3;
+                    Configuration.Seed();
+                    ReplaceByGeneration = _replaceByGeneration * 3;
 					++_crossoverProbability;
 				}				
 
 				Replacement(_chromosomes);
-
-				Configuration.Seed();
+				
 				lastBestFit = best.Fitness;
 			}
 		}

@@ -464,8 +464,9 @@ namespace GaSchedule.Algorithm
 		}
 		
 		private void Reform()
-		{		
-			if(_crossoverProbability < 95)
+		{
+            Configuration.Seed();
+            if (_crossoverProbability < 95)
 				_crossoverProbability += 1.0f;
 			else if(_mutationProbability < 30)
 				_mutationProbability += 1.0f;
@@ -514,8 +515,7 @@ namespace GaSchedule.Algorithm
 				CreateParentPopulation();
 				CreateOffspringPopulation();
 				MutateOffspringPopulation();
-				UpdateArchivePopulation();
-				Configuration.Seed();
+				UpdateArchivePopulation();				
 				++currentGeneration;
 			}
 		}
