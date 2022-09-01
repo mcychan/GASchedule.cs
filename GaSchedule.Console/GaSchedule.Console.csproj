@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>GaSchedule</AssemblyName>
     <Copyright>Copyright © Miller Cy Chan 2021</Copyright>
     <Product>GaSchedule.cs</Product>
