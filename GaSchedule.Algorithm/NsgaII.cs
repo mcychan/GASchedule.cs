@@ -118,16 +118,18 @@ namespace GaSchedule.Algorithm
 			if (front.Count > 1)
 			{
                 var diff2 = array[sortedKeys[front.Count - 1]].GetDifference(array[sortedKeys[0]]);
+                if (diff2 <= 0)
+				{
+					distance[sortedKeys[front.Count - 1]] = 0.0f;
+					distance[sortedKeys[0]] = 0.0f;
+                    return distance;
+				}
 
                 for (int i = 1; i < front.Count - 1; ++i)
-				{                    
-                    if (diff2 > 0) {
-						var diff = array[sortedKeys[i + 1]].GetDifference(array[sortedKeys[i - 1]]) * 1.0f;
-						diff /= diff2;
-						distance[sortedKeys[i]] += diff;
-					}
-					else
-						distance[sortedKeys[i]] = float.MaxValue;
+				{
+                    var diff = array[sortedKeys[i + 1]].GetDifference(array[sortedKeys[i - 1]]) * 1.0f;
+                    diff /= diff2;
+                    distance[sortedKeys[i]] += diff;
                 }
 			}
 			return distance;
