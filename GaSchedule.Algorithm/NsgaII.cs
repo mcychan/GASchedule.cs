@@ -117,12 +117,14 @@ namespace GaSchedule.Algorithm
 
 			if (front.Count > 1)
 			{
-				for (int i = 1; i < front.Count - 1; ++i)
+                var diff2 = array[sortedKeys[front.Count - 1]].GetDifference(array[sortedKeys[0]]);
+                if (diff2 <= 0)
+                    return distance;
+
+                for (int i = 1; i < front.Count - 1; ++i)
 				{
                     var diff = array[sortedKeys[i + 1]].GetDifference(array[sortedKeys[i - 1]]) * 1.0f;
-                    var diff2 = array[sortedKeys[front.Count - 1]].GetDifference(array[sortedKeys[0]]);
-					if (diff2 > 0)
-						diff /= diff2;
+                    diff /= diff2;
                     distance[sortedKeys[i]] = distance[sortedKeys[i]] + diff;
                 }
 			}
