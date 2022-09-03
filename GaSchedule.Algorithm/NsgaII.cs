@@ -115,15 +115,11 @@ namespace GaSchedule.Algorithm
 			distance[sortedKeys[front.Count - 1]] = float.MaxValue;
 			distance[sortedKeys[0]] = float.MaxValue;
 
-			if (front.Count > 1)
+			if (front.Count > 2)
 			{
                 var diff2 = array[sortedKeys[front.Count - 1]].GetDifference(array[sortedKeys[0]]);
                 if (diff2 <= 0)
-				{
-					distance[sortedKeys[front.Count - 1]] = 0.0f;
-					distance[sortedKeys[0]] = 0.0f;
                     return distance;
-				}
 
                 for (int i = 1; i < front.Count - 1; ++i)
 				{
