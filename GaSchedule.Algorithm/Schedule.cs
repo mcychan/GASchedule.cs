@@ -351,7 +351,7 @@ namespace GaSchedule.Algorithm
 				else
 					score = 0;
 				Criteria[ci + 4] = !go;
-				ci += Constant.DAYS_NUM;
+				ci += Constant.CRITERIA_NUM;
 			}
 
 			// calculate fitess value based on score
