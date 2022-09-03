@@ -100,18 +100,31 @@ namespace GaSchedule.Algorithm
 		/************** calculate crowding distance function ***************************/
 		private Dictionary<int, float> CalculateCrowdingDistance(ISet<int> front, List<T> totalChromosome)
 		{
-			var distance = front.ToDictionary(m => m, _ => 0.0f);
-			var obj = front.ToDictionary(m => m, m => totalChromosome[m].Fitness);
+			var distance = new Dictionary<int, float>();
+			var obj = new Dictionary<int, float>();
+            var array = new Dictionary<int, T>();
 
-			var sortedKeys = obj.OrderBy(e => e.Value).Select(e => e.Key).ToArray();
+			foreach (var key in front)
+			{
+                distance[key] = 0.0f;
+                obj[key] = totalChromosome[key].Fitness;
+                array[key] = totalChromosome[key];
+            }
+
+            var sortedKeys = obj.OrderBy(e => e.Value).Select(e => e.Key).ToArray();
 			distance[sortedKeys[front.Count - 1]] = float.MaxValue;
 			distance[sortedKeys[0]] = float.MaxValue;
 
-			var values = new HashSet<float>(obj.Values);
-			if (values.Count > 1)
+			if (front.Count > 1)
 			{
 				for (int i = 1; i < front.Count - 1; ++i)
-					distance[sortedKeys[i]] = distance[sortedKeys[i]] + (obj[sortedKeys[i + 1]] - obj[sortedKeys[i - 1]]) / (obj[sortedKeys[front.Count - 1]] - obj[sortedKeys[0]]);
+				{
+                    var diff = array[sortedKeys[i + 1]].GetDifference(array[sortedKeys[i - 1]]) * 1.0f;
+                    var diff2 = array[sortedKeys[front.Count - 1]].GetDifference(array[sortedKeys[0]]);
+					if (diff2 > 0)
+						diff /= diff2;
+                    distance[sortedKeys[i]] = distance[sortedKeys[i]] + diff;
+                }
 			}
 			return distance;
 		}

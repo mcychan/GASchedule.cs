@@ -121,30 +121,31 @@ namespace GaSchedule.Algorithm
 
 			distinct.ForEach(e => population[e].Diversity = 0.0f);
 
-			var val = population[distinct[size - 1]].Fitness - population[distinct[0]].Fitness;
-			if (val == 0)
+            var val = population[distinct[size - 1]].GetDifference(population[distinct[0]]);
+            if (val == 0)
 				return;
 
-			for (int j = 0; j < size; j++) {						
-				if (j == 0)
-				{
-					var hashArray = new float[] { 0.0f, population[distinct[j]].Fitness, population[distinct[j + 1]].Fitness };
-					var r = (hashArray[2] - hashArray[1]) / val;
-					population[distinct[j]].Diversity += (r * r);
-				}
-				else if (j == size - 1)
-				{
-					var hashArray = new float[] { population[distinct[j - 1]].Fitness, population[distinct[j]].Fitness };
-					var l = (hashArray[1] - hashArray[0]) / val;
-					population[distinct[j]].Diversity += (l * l);
-				}
-				else
-				{
-					var hashArray = new float[] { population[distinct[j - 1]].Fitness, population[distinct[j]].Fitness, population[distinct[j + 1]].Fitness };
-					var l = (hashArray[1] - hashArray[0]) / val;
-					var r = (hashArray[2] - hashArray[1]) / val;
-					population[distinct[j]].Diversity += (l * r);
-				}
+			for (int j = 0; j < size; j++) {
+                if (j == 0)
+                {
+                    int diff = population[distinct[j + 1]].GetDifference(population[distinct[j]]);
+                    float r = diff * 1.0f / val;
+                    population[distinct[j]].Diversity += (r * r);
+                }
+                else if (j == size - 1)
+                {
+                    int diff = population[distinct[j]].GetDifference(population[distinct[j - 1]]);
+                    float l = diff * 1.0f / val;
+                    population[distinct[j]].Diversity += (l * l);
+                }
+                else
+                {
+                    int diff = population[distinct[j]].GetDifference(population[distinct[j - 1]]);
+                    float l = diff * 1.0f / val;
+                    diff = population[distinct[j + 1]].GetDifference(population[distinct[j]]);
+                    float r = diff * 1.0f / val;
+                    population[distinct[j]].Diversity += (l * r);
+                }
 			}
 		}
 
@@ -216,8 +217,9 @@ namespace GaSchedule.Algorithm
                         index1 = indexArray[i],
                         index2 = indexArray[j]
                     };
-                    distance[j, i] = distance[i, j] = distMatrix.distance = Math.Abs(mixedPopulation[distMatrix.index1].Fitness - mixedPopulation[distMatrix.index2].Fitness);
-					distArray.Add(distMatrix);
+                    distMatrix.distance = mixedPopulation[distMatrix.index1].GetDifference(mixedPopulation[distMatrix.index2]);
+                    distance[j, i] = distance[i, j] = distMatrix.distance;
+                    distArray.Add(distMatrix);
 				}
 			}
 

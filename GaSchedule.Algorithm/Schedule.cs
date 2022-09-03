@@ -20,7 +20,7 @@ namespace GaSchedule.Algorithm
 			Classes = new Dictionary<CourseClass, Reservation>();
 
 			// reserve space for flags of class requirements
-			Criteria = new bool[Configuration.NumberOfCourseClasses * Constant.DAYS_NUM];
+			Criteria = new bool[Configuration.NumberOfCourseClasses * Constant.CRITERIA_NUM];
 		}
 
 		// Copy constructor
@@ -376,7 +376,18 @@ namespace GaSchedule.Algorithm
 
 		public int Rank { get; set; }
 
-		public override bool Equals(Object obj)
+        public int GetDifference(Schedule other)
+        {
+            int val = 0;
+            for (int i = 0; i < Criteria.Length && i < other.Criteria.Length; ++i)
+            {
+                if (Criteria[i] ^ other.Criteria[i])
+                    ++val;
+            }
+            return val;
+        }
+
+        public override bool Equals(Object obj)
 		{
 			//Check for null and compare run-time types.
 			if ((obj == null) || !this.GetType().Equals(obj.GetType()))

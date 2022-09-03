@@ -16,6 +16,8 @@ namespace GaSchedule.Algorithm
 
         public void Mutation(int mutationSize, float mutationProbability);
 
+        public int GetDifference(T other);
+
         public float Diversity { get; set; }
 
         public int Rank { get; set; }
