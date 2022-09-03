@@ -125,7 +125,7 @@ namespace GaSchedule.Algorithm
 				{
                     var diff = array[sortedKeys[i + 1]].GetDifference(array[sortedKeys[i - 1]]) * 1.0f;
                     diff /= diff2;
-                    distance[sortedKeys[i]] = distance[sortedKeys[i]] + diff;
+                    distance[sortedKeys[i]] += diff;
                 }
 			}
 			return distance;
