@@ -109,7 +109,7 @@ namespace GaSchedule.Algorithm
                 obj[key] = totalChromosome[key].Fitness;
                 array[key] = totalChromosome[key];
             }
-			var existing = new HashSet<float>();
+
 			obj = obj.GroupBy(pair => pair.Value)
 				.Select(group => group.First())
 				.ToDictionary(pair => pair.Key, pair => pair.Value);
