@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 namespace GaSchedule.Algorithm
 {
 	// NSGA II
@@ -110,18 +109,20 @@ namespace GaSchedule.Algorithm
                 obj[key] = totalChromosome[key].Fitness;
                 array[key] = totalChromosome[key];
             }
+			var existing = new HashSet<float>();
+			obj = obj.GroupBy(pair => pair.Value)
+				.Select(group => group.First())
+				.ToDictionary(pair => pair.Key, pair => pair.Value);
 
             var sortedKeys = obj.OrderBy(e => e.Value).Select(e => e.Key).ToArray();
-			distance[sortedKeys[front.Count - 1]] = float.MaxValue;
+			distance[sortedKeys[obj.Count - 1]] = float.MaxValue;
 			distance[sortedKeys[0]] = float.MaxValue;
 
-			if (front.Count > 2)
-			{
-                var diff2 = array[sortedKeys[front.Count - 1]].GetDifference(array[sortedKeys[0]]);
-                if (diff2 <= 0)
-                    return distance;
+            if (obj.Count > 1)
+            {
+                var diff2 = array[sortedKeys[obj.Count - 1]].GetDifference(array[sortedKeys[0]]);
 
-                for (int i = 1; i < front.Count - 1; ++i)
+                for (int i = 1; i < obj.Count - 1; ++i)
 				{
                     var diff = array[sortedKeys[i + 1]].GetDifference(array[sortedKeys[i - 1]]) * 1.0f;
                     diff /= diff2;
