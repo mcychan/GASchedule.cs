@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30406.217
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32819.101
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GaSchedule.Console", "GaSchedule.Console\GaSchedule.Console.csproj", "{0851C45D-B4F4-4952-B588-C9C881A93F1A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GaSchedule.Algorithm", "GaSchedule.Algorithm\GaSchedule.Algorithm.csproj", "{A0CBF238-2FBA-49B0-8BAB-E52914B4608F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GaSchedule.Model", "GaSchedule.Model\GaSchedule.Model.csproj", "{B91D968D-93AC-4C8C-AD93-1721ADB85A96}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{A0CBF238-2FBA-49B0-8BAB-E52914B4608F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0CBF238-2FBA-49B0-8BAB-E52914B4608F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0CBF238-2FBA-49B0-8BAB-E52914B4608F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B91D968D-93AC-4C8C-AD93-1721ADB85A96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B91D968D-93AC-4C8C-AD93-1721ADB85A96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B91D968D-93AC-4C8C-AD93-1721ADB85A96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B91D968D-93AC-4C8C-AD93-1721ADB85A96}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

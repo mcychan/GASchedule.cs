@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
+using GaSchedule.Model;
+
 namespace GaSchedule.Algorithm
 {
     /****************** Archive-based Micro Genetic Algorithm(AMGA2) **********************/

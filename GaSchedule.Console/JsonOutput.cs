@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using GaSchedule.Algorithm;
+using GaSchedule.Model;
 
 namespace GaSchedule
 {

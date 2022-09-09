@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using GaSchedule.Model;
+
 namespace GaSchedule.Algorithm
 {
 	/****************** Non-dominated Ranking Genetic Algorithm (NRGA) **********************/

@@ -1,5 +1,7 @@
 ﻿using System;
 
+using GaSchedule.Model;
+
 namespace GaSchedule.Algorithm
 {
     // Genetic algorithm
