@@ -4,6 +4,12 @@ using System.Linq;
 
 using GaSchedule.Model;
 
+/*
+ * K.Deb, A.Pratap, S.Agrawal, T.Meyarivan, A fast and elitist multiobjective genetic algorithm: 
+ * NSGA-II, IEEE Transactions on Evolutionary Computation 6 (2002) 182–197.
+ * Copyright (c) 2020 - 2022 Miller Cy Chan
+ */
+
 namespace GaSchedule.Algorithm
 {
 	// NSGA II
