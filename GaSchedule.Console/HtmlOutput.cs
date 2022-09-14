@@ -48,7 +48,7 @@ namespace GaSchedule
 			foreach (var cc in classes.Keys)
 			{
 				// coordinate of time-space slot
-				var reservation = classes[cc];
+				var reservation = Reservation.GetReservation(classes[cc]);
 				int dayId = reservation.Day + 1;
 				int periodId = reservation.Time + 1;
 				int roomId = reservation.Room;

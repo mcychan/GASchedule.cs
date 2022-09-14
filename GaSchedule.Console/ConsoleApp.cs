@@ -17,7 +17,7 @@ namespace GaSchedule
             var configuration = new Configuration();
             configuration.ParseFile(FILE_NAME);
 
-            var alg = new NsgaII<Schedule>(new Schedule(configuration));
+            var alg = new Hgasso<Schedule>(new Schedule(configuration));
             // var alg = new Amga2<Schedule>(new Schedule(configuration));
 
             System.Console.WriteLine("GaSchedule Version {0} C# .NET Core. Making a Class Schedule Using {1}.", Assembly.GetExecutingAssembly().GetName().Version, alg.ToString());
