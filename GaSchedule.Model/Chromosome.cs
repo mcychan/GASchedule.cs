@@ -1,8 +1,10 @@
-﻿namespace GaSchedule.Model
+﻿using System.Collections.Generic;
+
+namespace GaSchedule.Model
 {
     public interface Chromosome<T> where T : Chromosome<T>
     {
-        public T MakeNewFromPrototype();
+        public T MakeNewFromPrototype(List<float> positions = null);
 
         public float Fitness { get; }
 
@@ -19,6 +21,8 @@
         public float Diversity { get; set; }
 
         public int Rank { get; set; }
+
+        public void UpdatePositions(float[] positions);
 
     }
 }

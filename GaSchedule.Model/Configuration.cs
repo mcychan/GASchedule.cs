@@ -21,17 +21,17 @@ namespace GaSchedule.Model
 		private readonly Dictionary<int, Room> _rooms;
 
         // Generate a random number  
-        private static Random _random = new Random(DateTime.Now.Millisecond);
+        private static Random _random = new(DateTime.Now.Millisecond);
 
 		// Initialize data
 		public Configuration()  {
 			Empty = true;
-			_professors = new Dictionary<int, Professor>();
-			_studentGroups = new Dictionary<int, StudentsGroup>();
-			_courses = new Dictionary<int, Course>();
-			_rooms = new Dictionary<int, Room>();
-			CourseClasses = new List<CourseClass>();
-		}
+			_professors = new();
+			_studentGroups = new();
+            _courses = new();
+            _rooms = new();
+            CourseClasses = new();
+        }
 
 		// Returns professor with specified ID
 		// If there is no professor with such ID method returns NULL
@@ -313,7 +313,17 @@ namespace GaSchedule.Model
 			return _random.Next(size);
 		}
 
-		public static void Seed()
+        public static int Rand(int min, int max)
+        {
+            return min + Rand(max - min + 1);
+        }
+
+        public static double Rand(float min, float max)
+        {
+            return min + _random.NextDouble() * (max - min);
+        }
+
+        public static void Seed()
 		{
 			_random = new Random(DateTime.Now.Millisecond);
 		}
