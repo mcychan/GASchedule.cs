@@ -8,10 +8,10 @@ namespace GaSchedule.Model
 	// Schedule chromosome
 	public class Schedule : Chromosome<Schedule>
 	{
-        // Initializes chromosomes with configuration block (setup of chromosome)
-        public Schedule(Configuration configuration)
+		// Initializes chromosomes with configuration block (setup of chromosome)
+		public Schedule(Configuration configuration)
 		{
-			Configuration = configuration;			
+			Configuration = configuration;
 			Fitness = 0;
 
 			// reserve space for time-space slots in chromosomes code
@@ -26,10 +26,10 @@ namespace GaSchedule.Model
 
 		// Copy constructor
 		private Schedule Copy(Schedule c, bool setupOnly)
-		{			
+		{
 			if (!setupOnly)
 			{
-				// copy code				
+				// copy code
 				Slots = c.Slots;
 				Classes = c.Classes;
 
@@ -48,29 +48,29 @@ namespace GaSchedule.Model
 		public Schedule MakeNewFromPrototype(List<float> positions = null)
 		{
 			// make new chromosome, copy chromosome setup
-			var newChromosome = Copy(this, true);			
+			var newChromosome = Copy(this, true);
 
 			// place classes at random position
 			var c = Configuration.CourseClasses;
 			int nr = Configuration.NumberOfRooms;
 			foreach (var courseClass in c)
 			{
-				// determine random position of class				
+				// determine random position of class
 				int dur = courseClass.Duration;
 
-                int day = Configuration.Rand(0, Constant.DAYS_NUM - 1);
-                int room = Configuration.Rand(0, nr - 1);
-                int time = Configuration.Rand(0, Constant.DAY_HOURS - dur);
-                var reservation = Reservation.GetReservation(nr, day, time, room);
-                if (positions != null)
-                {
-                    positions.Add(day * 1.0f / Constant.DAYS_NUM);
-                    positions.Add(room * 1.0f / nr);
-                    positions.Add(time * 1.0f / (Constant.DAY_HOURS + 1 - dur));
-                }
+				int day = Configuration.Rand(0, Constant.DAYS_NUM - 1);
+				int room = Configuration.Rand(0, nr - 1);
+				int time = Configuration.Rand(0, Constant.DAY_HOURS - dur);
+				var reservation = Reservation.GetReservation(nr, day, time, room);
+				if (positions != null)
+				{
+					positions.Add(day * 1.0f / Constant.DAYS_NUM);
+					positions.Add(room * 1.0f / nr);
+					positions.Add(time * 1.0f / (Constant.DAY_HOURS + 1 - dur));
+				}
 
-                // fill time-space slots, for each hour of class
-                for (int i = dur - 1; i >= 0; --i)
+				// fill time-space slots, for each hour of class
+				for (int i = dur - 1; i >= 0; --i)
 					newChromosome.Slots[reservation.GetHashCode() + i].Add(courseClass);
 
 				// insert in class table of chromosome
@@ -213,26 +213,26 @@ namespace GaSchedule.Model
 			return n;
 		}
 
-        private void Repair(CourseClass cc1, Reservation reservation1, Reservation reservation2)
-        {
-            int dur = cc1.Duration;
-            // move all time-space slots
-            for (int j = dur - 1; j >= 0; --j)
-            {
-                // remove class hour from current time-space slot
-                var cl = Slots[reservation1.GetHashCode() + j];
-                cl.RemoveAll(cc => cc == cc1);
+		private void Repair(CourseClass cc1, int reservation1_index, Reservation reservation2)
+		{
+			int dur = cc1.Duration;
+			// move all time-space slots
+			for (int j = dur - 1; j >= 0; --j)
+			{
+				// remove class hour from current time-space slot
+				var cl = Slots[reservation1_index + j];
+				cl.RemoveAll(cc => cc == cc1);
 
-                // move class hour to new time-space slot
-                Slots[reservation2.GetHashCode() + j].Add(cc1);
-            }
+				// move class hour to new time-space slot
+				Slots[reservation2.GetHashCode() + j].Add(cc1);
+			}
 
-            // change entry of class table to point to new time-space slots
-            Classes[cc1] = reservation2.GetHashCode();
-        }
+			// change entry of class table to point to new time-space slots
+			Classes[cc1] = reservation2.GetHashCode();
+		}
 
-        // Performs mutation on chromosome
-        public void Mutation(int mutationSize, float mutationProbability)
+		// Performs mutation on chromosome
+		public void Mutation(int mutationSize, float mutationProbability)
 		{
 			// check probability of mutation operation
 			if (Configuration.Rand() % 100 > mutationProbability)
@@ -250,7 +250,6 @@ namespace GaSchedule.Model
 
 				// current time-space slot used by class
 				var cc1 = Classes.Keys.ElementAt(mpos);
-				var reservation1 = Classes[cc1];
 
 				// determine position of class randomly				
 				int dur = cc1.Duration;
@@ -259,19 +258,7 @@ namespace GaSchedule.Model
 				int time = Configuration.Rand() % (Constant.DAY_HOURS + 1 - dur);
 				var reservation2 = Reservation.GetReservation(nr, day, time, room);
 
-				// move all time-space slots
-				for (int j = dur - 1; j >= 0; --j)
-				{
-					// remove class hour from current time-space slot
-					var cl = Slots[reservation1.GetHashCode() + j];
-					cl.RemoveAll(cc => cc == cc1);
-
-					// move class hour to new time-space slot
-					Slots[reservation2.GetHashCode() + j].Add(cc1);
-				}
-
-				// change entry of class table to point to new time-space slots
-				Classes[cc1] = reservation2.GetHashCode();
+				Repair(cc1, Classes[cc1], reservation2);
 			}
 
 			CalculateFitness();
@@ -301,8 +288,8 @@ namespace GaSchedule.Model
 				// check for room overlapping of classes
 				var ro = Model.Criteria.IsRoomOverlapped(Slots, reservation, dur);
 
-                // on room overlapping
-                if (!ro)
+				// on room overlapping
+				if (!ro)
 					score++;
 				else
 					score = 0;
@@ -312,30 +299,30 @@ namespace GaSchedule.Model
 				var r = Configuration.GetRoomById(room);
 				// does current room have enough seats
 				Criteria[ci + 1] = Model.Criteria.IsSeatEnough(r, cc);
-                if (Criteria[ci + 1])
+				if (Criteria[ci + 1])
 					score++;
 				else
 					score /= 2;
 
 				// does current room have computers if they are required
 				Criteria[ci + 2] = Model.Criteria.IsComputerEnough(r, cc);
-                if (Criteria[ci + 2])
+				if (Criteria[ci + 2])
 					score++;
 				else
 					score /= 2;
 
-                var total_overlap = Model.Criteria.IsOverlappedProfStudentGrp(Slots, cc, numberOfRooms, day * daySize + time, dur);
+				var total_overlap = Model.Criteria.IsOverlappedProfStudentGrp(Slots, cc, numberOfRooms, day * daySize + time, dur);
 
-                // professors have no overlapping classes?
-                if (!total_overlap[0])
-                    score++;
+				// professors have no overlapping classes?
+				if (!total_overlap[0])
+					score++;
 				else
 					score = 0;
 				Criteria[ci + 3] = !total_overlap[0];
 
-                // student groups has no overlapping classes?
-                if (!total_overlap[1])
-                    score++;
+				// student groups has no overlapping classes?
+				if (!total_overlap[1])
+					score++;
 				else
 					score = 0;
 				Criteria[ci + 4] = !total_overlap[1];
@@ -347,65 +334,63 @@ namespace GaSchedule.Model
 			Fitness = (float)score / (Configuration.NumberOfCourseClasses * Constant.DAYS_NUM);
 		}
 
-        // Returns fitness value of chromosome
-        public float Fitness { get; private set; }
+		// Returns fitness value of chromosome
+		public float Fitness { get; private set; }
 
-        public Configuration Configuration { get; private set; }
+		public Configuration Configuration { get; private set; }
 
-        // Returns reference to table of classes
-        public Dictionary<CourseClass, int> Classes { get; private set; }
+		// Returns reference to table of classes
+		public Dictionary<CourseClass, int> Classes { get; private set; }
 
-        // Returns array of flags of class requirements satisfaction
-        public bool[] Criteria { get; private set; }
+		// Returns array of flags of class requirements satisfaction
+		public bool[] Criteria { get; private set; }
 
-        // Return reference to array of time-space slots
-        public List<CourseClass>[] Slots { get; private set; }
+		// Return reference to array of time-space slots
+		public List<CourseClass>[] Slots { get; private set; }
 
 		public float Diversity { get; set; }
 
 		public int Rank { get; set; }
 
-        public int GetDifference(Schedule other)
-        {
-            int val = 0;
-            for (int i = 0; i < Criteria.Length && i < other.Criteria.Length; ++i)
-            {
-                if (Criteria[i] ^ other.Criteria[i])
-                    ++val;
-            }
-            return val;
-        }
+		public int GetDifference(Schedule other)
+		{
+			int val = 0;
+			for (int i = 0; i < Criteria.Length && i < other.Criteria.Length; ++i)
+			{
+				if (Criteria[i] ^ other.Criteria[i])
+					++val;
+			}
+			return val;
+		}
 
-        public void UpdatePositions(float[] positions)
-        {
-            int nr = Configuration.NumberOfRooms;
-            int i = 0;
-            foreach (var cc in Classes.Keys)
-            {
-                var reservation1 = Reservation.GetReservation(Classes[cc]);
-                int dur = cc.Duration;
-                int day = (int)(positions[i++] * Constant.DAYS_NUM);
-                int room = (int)(positions[i++] * nr);
-                int time = (int)(positions[i++] * (Constant.DAY_HOURS + 1 - dur));
+		public void UpdatePositions(float[] positions)
+		{
+			int nr = Configuration.NumberOfRooms;
+			int i = 0;
+			foreach (var cc in Classes.Keys)
+			{
+				int dur = cc.Duration;
+				int day = (int)(positions[i++] * Constant.DAYS_NUM);		
+				if (day < 0 || day >= Constant.DAYS_NUM)
+					day = Math.Abs(day % Constant.DAYS_NUM);
+				positions[i - 1] = day * 1.0f / Constant.DAYS_NUM;
 
-                if (day < 0 || day >= Constant.DAYS_NUM)
-                    day = Math.Abs(day % Constant.DAYS_NUM);
-                positions[i - 1] = day * 1.0f / Constant.DAYS_NUM;
+				int room = (int)(positions[i++] * nr);
+				if (room < 0 || room >= nr)
+					room = Math.Abs(room % nr);
+				positions[i - 1] = room * 1.0f / nr;
 
-                if (room < 0 || room >= nr)
-                    room = Math.Abs(room % nr);
-                positions[i - 1] = room * 1.0f / nr;
+				int time = (int)(positions[i++] * (Constant.DAY_HOURS + 1 - dur)); 
+				if (time < 0 || time >= (Constant.DAY_HOURS + 1 - dur))
+					time = Math.Abs(time % (Constant.DAY_HOURS + 1 - dur));
+				positions[i - 1] = time * 1.0f / (Constant.DAY_HOURS + 1 - dur);
 
-                if (time < 0 || time >= (Constant.DAY_HOURS + 1 - dur))
-                    time = Math.Abs(time % (Constant.DAY_HOURS + 1 - dur));
-                positions[i - 1] = time * 1.0f / (Constant.DAY_HOURS + 1 - dur);
+				var reservation2 = Reservation.GetReservation(nr, day, time, room);
+				Repair(cc, Classes[cc], reservation2);
+			}
 
-                var reservation2 = Reservation.GetReservation(nr, day, time, room);
-                Repair(cc, reservation1, reservation2);
-            }
+			CalculateFitness();
+		}
 
-            CalculateFitness();
-        }
-
-    }
+	}
 }
