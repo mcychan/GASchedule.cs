@@ -389,15 +389,15 @@ namespace GaSchedule.Model
                 int time = (int)(positions[i++] * (Constant.DAY_HOURS + 1 - dur));
 
                 if (day < 0 || day >= Constant.DAYS_NUM)
-                    day = Configuration.Rand(0, Constant.DAYS_NUM - 1);
+                    day = Math.Abs(day % Constant.DAYS_NUM);
                 positions[i - 1] = day * 1.0f / Constant.DAYS_NUM;
 
                 if (room < 0 || room >= nr)
-                    room = Configuration.Rand(0, nr - 1);
+                    room = Math.Abs(room % nr);
                 positions[i - 1] = room * 1.0f / nr;
 
                 if (time < 0 || time >= (Constant.DAY_HOURS + 1 - dur))
-                    time = Configuration.Rand(0, Constant.DAY_HOURS - dur);
+                    time = Math.Abs(time % (Constant.DAY_HOURS + 1 - dur));
                 positions[i - 1] = time * 1.0f / (Constant.DAY_HOURS + 1 - dur);
 
                 var reservation2 = Reservation.GetReservation(nr, day, time, room);
