@@ -64,9 +64,9 @@ namespace GaSchedule.Model
 				var reservation = Reservation.GetReservation(nr, day, time, room);
 				if (positions != null)
 				{
-					positions.Add(day * 1.0f / Constant.DAYS_NUM);
-					positions.Add(room * 1.0f / nr);
-					positions.Add(time * 1.0f / (Constant.DAY_HOURS + 1 - dur));
+					positions.Add(day * 1.0f);
+					positions.Add(room * 1.0f);
+					positions.Add(time * 1.0f);
 				}
 
 				// fill time-space slots, for each hour of class
@@ -369,21 +369,9 @@ namespace GaSchedule.Model
 			int i = 0;
 			foreach (var cc in Classes.Keys)
 			{
-				int dur = cc.Duration;
-				int day = (int)(positions[i++] * Constant.DAYS_NUM);		
-				if (day < 0 || day >= Constant.DAYS_NUM)
-					day = Math.Abs(day % Constant.DAYS_NUM);
-				positions[i - 1] = day * 1.0f / Constant.DAYS_NUM;
-
-				int room = (int)(positions[i++] * nr);
-				if (room < 0 || room >= nr)
-					room = Math.Abs(room % nr);
-				positions[i - 1] = room * 1.0f / nr;
-
-				int time = (int)(positions[i++] * (Constant.DAY_HOURS + 1 - dur)); 
-				if (time < 0 || time >= (Constant.DAY_HOURS + 1 - dur))
-					time = Math.Abs(time % (Constant.DAY_HOURS + 1 - dur));
-				positions[i - 1] = time * 1.0f / (Constant.DAY_HOURS + 1 - dur);
+				int day = (int) Math.Abs(positions[i++] % Constant.DAYS_NUM);			
+				int room = (int) Math.Abs(positions[i++] % nr);			
+				int time = (int) Math.Abs(positions[i++] % (Constant.DAY_HOURS + 1 - cc.Duration));
 
 				var reservation2 = Reservation.GetReservation(nr, day, time, room);
 				Repair(cc, Classes[cc], reservation2);
