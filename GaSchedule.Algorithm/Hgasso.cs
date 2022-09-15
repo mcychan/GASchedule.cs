@@ -16,7 +16,7 @@ namespace GaSchedule.Algorithm
     public class Hgasso<T> : NsgaII<T> where T : Chromosome<T>
     {
         private float _sgBestScore;
-        private double _threshold = .75;
+        private double _threshold = .8;
         private float[] _sBestScore;
         private float[] _sgBest = null;
         private float[][] _current_position = null;
