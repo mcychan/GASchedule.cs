@@ -60,7 +60,7 @@ namespace GaSchedule.Model
 
 				int day = Configuration.Rand(0, Constant.DAYS_NUM - 1);
 				int room = Configuration.Rand(0, nr - 1);
-				int time = Configuration.Rand(0, Constant.DAY_HOURS - dur);
+				int time = Configuration.Rand(0, Constant.DAY_HOURS - 1 - dur);
 				var reservation = Reservation.GetReservation(nr, day, time, room);
 				if (positions != null)
 				{
@@ -253,9 +253,9 @@ namespace GaSchedule.Model
 
 				// determine position of class randomly				
 				int dur = cc1.Duration;
-				int day = Configuration.Rand() % Constant.DAYS_NUM;
-				int room = Configuration.Rand() % nr;
-				int time = Configuration.Rand() % (Constant.DAY_HOURS + 1 - dur);
+				int day = Configuration.Rand(0, Constant.DAYS_NUM - 1);
+				int room = Configuration.Rand(0, nr - 1);
+				int time = Configuration.Rand(0, Constant.DAY_HOURS - 1 - dur);
 				var reservation2 = Reservation.GetReservation(nr, day, time, room);
 
 				Repair(cc1, Classes[cc1], reservation2);
@@ -371,7 +371,7 @@ namespace GaSchedule.Model
 			{
 				int day = (int) Math.Abs(positions[i++] % Constant.DAYS_NUM);			
 				int room = (int) Math.Abs(positions[i++] % nr);			
-				int time = (int) Math.Abs(positions[i++] % (Constant.DAY_HOURS + 1 - cc.Duration));
+				int time = (int) Math.Abs(positions[i++] % (Constant.DAY_HOURS - cc.Duration));
 
 				var reservation2 = Reservation.GetReservation(nr, day, time, room);
 				Repair(cc, Classes[cc], reservation2);
