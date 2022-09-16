@@ -362,6 +362,18 @@ namespace GaSchedule.Model
 			}
 			return val;
 		}
+		
+		public void ExtractPositions(float[] positions)
+		{
+			int i = 0;
+			foreach (var cc in Classes.Keys)
+			{
+				var reservation = Reservation.GetReservation(Classes[cc]);
+				positions[i++] = reservation.Day;
+				positions[i++] = reservation.Room;
+				positions[i++] = reservation.Time;
+			}
+		}
 
 		public void UpdatePositions(float[] positions)
 		{
