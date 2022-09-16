@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace GaSchedule.Model
 {
@@ -12,7 +12,7 @@ namespace GaSchedule.Model
 
         public T Crossover(T mother, int numberOfCrossoverPoints, float crossoverProbability);
 		
-		public T Crossover(T parent, T r1, T r2, T r3, float etaCross, float crossoverProbability);
+        public T Crossover(T parent, T r1, T r2, T r3, float etaCross, float crossoverProbability);
 
         public void Mutation(int mutationSize, float mutationProbability);
 
@@ -21,6 +21,8 @@ namespace GaSchedule.Model
         public float Diversity { get; set; }
 
         public int Rank { get; set; }
+	
+        public void ExtractPositions(float[] positions);
 
         public void UpdatePositions(float[] positions);
 
