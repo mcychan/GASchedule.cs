@@ -69,7 +69,8 @@ namespace GaSchedule.Algorithm
 
         private void UpdateVelocities(List<T> population)
         {
-            for (int i = 0; i < population.Count; ++i)
+            int start = (int)(population.Count * _threshold);
+            for (int i = start; i < population.Count; ++i)
             {
                 int dim = _velocity[i].Length;
                 for (int j = 0; j < dim; ++j)
