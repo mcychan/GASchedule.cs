@@ -67,11 +67,6 @@ namespace GaSchedule.Algorithm
             }
         }
 
-        protected void UpdatePositions(T chromosome, int pos)
-        {
-            chromosome.UpdatePositions(_current_position[pos]);
-        }
-
         private void UpdateVelocities(List<T> population)
         {
             for (int i = 0; i < population.Count; ++i)
@@ -91,10 +86,16 @@ namespace GaSchedule.Algorithm
         protected override List<T> Replacement(List<T> population)
         {
             int start = (int)(population.Count * _threshold);
-            for (int i = start; i < population.Count; ++i)
+            for (int i = 0; i < population.Count; ++i)
             {
-                UpdatePositions(population[i], i);
-                float fitness = population[i].Fitness;
+                var fitness = population[i].Fitness;
+                if(i < start)
+                    population[i].ExtractPositions(_current_position[i]);
+                else if(fitness < _sBestScore[i])
+                {
+                    population[i].UpdatePositions(_current_position[i]);			
+                    fitness = population[i].Fitness;
+                }
 
                 if (fitness > _sBestScore[i])
                 {
