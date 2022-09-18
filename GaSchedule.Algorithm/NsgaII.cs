@@ -102,7 +102,9 @@ namespace GaSchedule.Algorithm
 				++i;
 				front.Add(Q);
 			}
-			return front.GetRange(0, front.Count - 1);
+
+            front.RemoveAt(front.Count - 1);
+            return front;
 		}
 
 		/************** calculate crowding distance function ***************************/
