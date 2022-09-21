@@ -63,7 +63,6 @@ namespace GaSchedule.Algorithm
 			var s = new HashSet<int>[_populationSize * 2];
 			var n = new int[s.Length];
 			var front = new List<ISet<int> >();
-			var rank = new int[s.Length];
 			front.Add(new HashSet<int>());
 
 			for (int p = 0; p < s.Length; ++p)
@@ -78,10 +77,7 @@ namespace GaSchedule.Algorithm
 				}
 
 				if (n[p] == 0)
-				{
-					rank[p] = 0;
 					front[0].Add(p);
-				}
 			}
 
 			int i = 0;
@@ -93,18 +89,15 @@ namespace GaSchedule.Algorithm
 					foreach (int q in s[p])
 					{
 						if (--n[q] == 0)
-						{
-							rank[q] = i + 1;
 							Q.Add(q);
-						}
 					}
 				}
 				++i;
 				front.Add(Q);
 			}
 
-            front.RemoveAt(front.Count - 1);
-            return front;
+			front.RemoveAt(front.Count - 1);
+			return front;
 		}
 
 		/************** calculate crowding distance function ***************************/
@@ -112,33 +105,27 @@ namespace GaSchedule.Algorithm
 		{
 			var distance = new Dictionary<int, float>();
 			var obj = new Dictionary<int, float>();
-            var array = new Dictionary<int, T>();
 
 			foreach (var key in front)
 			{
-                distance[key] = 0.0f;
-                obj[key] = totalChromosome[key].Fitness;
-                array[key] = totalChromosome[key];
-            }
+				distance[key] = 0.0f;
+				var fitness = totalChromosome[key].Fitness;
+				if(!obj.ContainsValue(fitness))
+					obj[key] = fitness;
 
-			obj = obj.GroupBy(pair => pair.Value)
-				.Select(group => group.First())
-				.ToDictionary(pair => pair.Key, pair => pair.Value);
+				var sortedKeys = obj.OrderBy(e => e.Value).Select(e => e.Key).ToArray();
+				distance[sortedKeys[obj.Count - 1]] = float.MaxValue;
+				distance[sortedKeys[0]] = float.MaxValue;
 
-            var sortedKeys = obj.OrderBy(e => e.Value).Select(e => e.Key).ToArray();
-			distance[sortedKeys[obj.Count - 1]] = float.MaxValue;
-			distance[sortedKeys[0]] = float.MaxValue;
-
-            if (obj.Count > 1)
-            {
-                var diff2 = array[sortedKeys[obj.Count - 1]].GetDifference(array[sortedKeys[0]]);
-
-                for (int i = 1; i < obj.Count - 1; ++i)
+				if (obj.Count > 1)
 				{
-                    var diff = array[sortedKeys[i + 1]].GetDifference(array[sortedKeys[i - 1]]) * 1.0f;
-                    diff /= diff2;
-                    distance[sortedKeys[i]] += diff;
-                }
+					var diff2 = totalChromosome[sortedKeys[obj.Count - 1]].GetDifference(totalChromosome[sortedKeys[0]]);
+
+					for (int i = 1; i < obj.Count - 1; ++i)
+					{
+						var diff = totalChromosome[sortedKeys[i + 1]].GetDifference(totalChromosome[sortedKeys[i - 1]]) * 1.0f / diff2;
+						distance[sortedKeys[i]] += diff;
+				}
 			}
 			return distance;
 		}
@@ -189,23 +176,25 @@ namespace GaSchedule.Algorithm
 			}
 			return offspring;
 		}
+		
 		protected virtual void Initialize(List<T> population)
 		{
 			// initialize new population with chromosomes randomly built using prototype
 			for (int i = 0; i < _populationSize; ++i)
 				population.Add(_prototype.MakeNewFromPrototype());
 		}
-        private void Reform()
-        {
-            Configuration.Seed();
-            if (_crossoverProbability < 95)
-                _crossoverProbability += 1.0f;
-            else if (_mutationProbability < 30)
-                _mutationProbability += 1.0f;
-        }
+		
+		private void Reform()
+		{
+			Configuration.Seed();
+			if (_crossoverProbability < 95)
+			_crossoverProbability += 1.0f;
+			else if (_mutationProbability < 30)
+			_mutationProbability += 1.0f;
+		}
 
-        // Starts and executes algorithm
-        public void Run(int maxRepeat = 9999, double minFitness = 0.999)
+		// Starts and executes algorithm
+		public void Run(int maxRepeat = 9999, double minFitness = 0.999)
 		{
 			if (_prototype == null)
 				return;
@@ -239,7 +228,7 @@ namespace GaSchedule.Algorithm
 					if (repeat > (maxRepeat / 100))
 						Reform();
 
-                }
+				}
 
 				/******************* crossover *****************/
 				var offspring = Replacement(population);
