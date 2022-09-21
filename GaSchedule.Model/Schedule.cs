@@ -31,7 +31,7 @@ namespace GaSchedule.Model
 			{
 				// copy code
 				Slots = c.Slots.ToArray();
-				Classes = c.Classes;
+				Classes = new(c.Classes);
 
 				// copy flags of class requirements
 				Criteria = c.Criteria.ToArray();
