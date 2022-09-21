@@ -30,11 +30,11 @@ namespace GaSchedule.Model
 			if (!setupOnly)
 			{
 				// copy code
-				Slots = c.Slots;
+				Slots = c.Slots.ToArray();
 				Classes = c.Classes;
 
 				// copy flags of class requirements
-				Criteria = c.Criteria;
+				Criteria = c.Criteria.ToArray();
 
 				// copy fitness
 				Fitness = c.Fitness;
