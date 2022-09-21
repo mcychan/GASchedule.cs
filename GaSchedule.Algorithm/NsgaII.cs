@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -125,6 +125,7 @@ namespace GaSchedule.Algorithm
 					{
 						var diff = totalChromosome[sortedKeys[i + 1]].GetDifference(totalChromosome[sortedKeys[i - 1]]) * 1.0f / diff2;
 						distance[sortedKeys[i]] += diff;
+					}
 				}
 			}
 			return distance;
@@ -156,7 +157,7 @@ namespace GaSchedule.Algorithm
 			}
 
 			return newPop.Select(n => totalChromosome[n]).ToList();
-		}		
+		}
 
 		protected virtual List<T> Replacement(List<T> population)
 		{
@@ -176,14 +177,13 @@ namespace GaSchedule.Algorithm
 			}
 			return offspring;
 		}
-		
 		protected virtual void Initialize(List<T> population)
 		{
 			// initialize new population with chromosomes randomly built using prototype
 			for (int i = 0; i < _populationSize; ++i)
 				population.Add(_prototype.MakeNewFromPrototype());
 		}
-		
+
 		private void Reform()
 		{
 			Configuration.Seed();
