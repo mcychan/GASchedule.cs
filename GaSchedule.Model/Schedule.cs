@@ -340,7 +340,7 @@ namespace GaSchedule.Model
 		public Configuration Configuration { get; private set; }
 
 		// Returns reference to table of classes
-		public Dictionary<CourseClass, int> Classes { get; private set; }
+		public SortedDictionary<CourseClass, int> Classes { get; private set; }
 
 		// Returns array of flags of class requirements satisfaction
 		public bool[] Criteria { get; private set; }
