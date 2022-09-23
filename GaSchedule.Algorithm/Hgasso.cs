@@ -92,6 +92,8 @@ namespace GaSchedule.Algorithm
                     population[i].UpdatePositions(_current_position[i]);			
                     fitness = population[i].Fitness;
                 }
+                else
+                    population[i].ExtractPositions(_current_position[i]);
 
                 if (fitness > _sBestScore[i])
                 {
