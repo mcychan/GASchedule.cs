@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace GaSchedule.Model
 {
-    public class CourseClass
+    public class CourseClass : IComparable<CourseClass>
     {
-
-		// Initializes class object
-		public CourseClass(Professor professor, Course course, bool requiresLab, int duration, params StudentsGroup[] groups)
+        private static int _nextClassId = 0;
+        // Initializes class object
+        public CourseClass(Professor professor, Course course, bool requiresLab, int duration, params StudentsGroup[] groups)
         {
-			Professor = professor;
+            Id = _nextClassId++;
+            Professor = professor;
 			Course = course;
 			NumberOfSeats = 0;
 			LabRequired = requiresLab;
@@ -39,8 +41,18 @@ namespace GaSchedule.Model
 			return Professor.Equals(c.Professor);
 		}
 
-		// Return pointer to professor who teaches
-		public Professor Professor { get; set; }
+		public int CompareTo(CourseClass other)
+		{
+            if (other == null)
+                return -1;
+            return other.Id - Id;
+        }
+
+        // Returns class ID - automatically assigned
+		public int Id { get; set; }
+
+        // Return pointer to professor who teaches
+        public Professor Professor { get; set; }
 
 		// Return pointer to course to which class belongs
 		public Course Course { get; set; }
@@ -56,5 +68,8 @@ namespace GaSchedule.Model
 
 		// Returns duration of class in hours
 		public int Duration { get; set; }
-	}
+
+        // Restarts ID assigments
+        public static void RestartIDs() { _nextClassId = 0; }
+    }
 }

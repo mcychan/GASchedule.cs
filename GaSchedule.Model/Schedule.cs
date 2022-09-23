@@ -379,7 +379,8 @@ namespace GaSchedule.Model
 		{
 			int nr = Configuration.NumberOfRooms;
 			int i = 0;
-			foreach (var cc in Classes.Keys)
+			var classes = Classes.Keys.ToArray();
+            foreach (var cc in classes)
 			{
 				int day = (int) Math.Abs(positions[i++] % Constant.DAYS_NUM);			
 				int room = (int) Math.Abs(positions[i++] % nr);			

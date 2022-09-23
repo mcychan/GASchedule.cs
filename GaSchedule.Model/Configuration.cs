@@ -265,9 +265,10 @@ namespace GaSchedule.Model
 			CourseClasses.Clear();
 
 			Room.RestartIDs();
+            CourseClass.RestartIDs();
 
-			// read file into a string and deserialize JSON to a type
-			var data = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, JsonElement> >[]>(File.ReadAllText(fileName));
+            // read file into a string and deserialize JSON to a type
+            var data = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, JsonElement> >[]>(File.ReadAllText(fileName));
 			foreach (Dictionary<string, Dictionary<string, JsonElement> > item in data)
 			{
 				foreach (var obj in item)
