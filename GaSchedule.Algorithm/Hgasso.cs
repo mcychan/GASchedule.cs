@@ -67,11 +67,13 @@ namespace GaSchedule.Algorithm
             }
         }
 
-        private void UpdateVelocities(List<T> population)
+        private void UpdateVelocities(List<T> population, bool[] motility)
         {
-            int start = (int)(population.Count * _threshold);
-            for (int i = start; i < population.Count; ++i)
+            for (int i = 0; i < population.Count; ++i)
             {
+                if (!motility[i])
+                    continue;
+
                 int dim = _velocity[i].Length;
                 for (int j = 0; j < dim; ++j)
                 {
@@ -87,14 +89,17 @@ namespace GaSchedule.Algorithm
         protected override List<T> Replacement(List<T> population)
         {
             int start = (int)(population.Count * _threshold);
+            var motility = new bool[population.Count];
+
             for (int i = 0; i < population.Count; ++i)
             {
                 var fitness = population[i].Fitness;
-                if(i < start)
+                if (i < start)
                     population[i].ExtractPositions(_current_position[i]);
-                else if(fitness < _sBestScore[i])
+                else if (fitness < _sBestScore[i])
                 {
-                    population[i].UpdatePositions(_current_position[i]);			
+                    population[i].UpdatePositions(_current_position[i]);
+                    motility[i] = true;
                     fitness = population[i].Fitness;
                 }
 
@@ -111,7 +116,7 @@ namespace GaSchedule.Algorithm
                 }
             }
 
-            UpdateVelocities(population);
+            UpdateVelocities(population, motility);
             return base.Replacement(population);
         }
 
