@@ -107,14 +107,14 @@ namespace GaSchedule.Algorithm
                 if (fitness > _sBestScore[i])
                 {
                     _sBestScore[i] = fitness;                    
-                    _sBest[i] = _current_position[i].ToArray();
-                    _motility[i] = !_motility[i];
+                    _sBest[i] = _current_position[i].ToArray();                    
                 }
 
                 if (fitness > _sgBestScore)
                 {
                     _sgBestScore = fitness;
                     _sgBest = _current_position[i].ToArray();
+                    _motility[i] = !_motility[i];
                 }
             }
 
