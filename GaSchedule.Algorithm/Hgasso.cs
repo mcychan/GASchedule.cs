@@ -99,19 +99,20 @@ namespace GaSchedule.Algorithm
                 else if (fitness < _sBestScore[i])
                 {
                     population[i].UpdatePositions(_current_position[i]);
-                    motility[i] = true;
                     fitness = population[i].Fitness;
                 }
 
                 if (fitness > _sBestScore[i])
                 {
                     _sBestScore[i] = fitness;
+                    motility[i] = true;
                     _sBest[i] = _current_position[i].ToArray();
                 }
 
                 if (fitness > _sgBestScore)
                 {
                     _sgBestScore = fitness;
+                    motility[i] = true;
                     _sgBest = _current_position[i].ToArray();
                 }
             }
