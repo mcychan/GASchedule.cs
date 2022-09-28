@@ -17,6 +17,7 @@ namespace GaSchedule.Algorithm
     {
         private float _sgBestScore;
         private double _threshold = .25;
+        private bool[] _motility;
         private float[] _sBestScore;
         private float[] _sgBest = null;
         private float[][] _current_position = null;
@@ -56,6 +57,7 @@ namespace GaSchedule.Algorithm
                     _sBest = CreateArray<float>(numberOfChromosomes, size);
                     _sgBest = new float[numberOfChromosomes];
                     _sBestScore = new float[numberOfChromosomes];
+                    _motility = new bool[population.Count];
                 }
 
                 _sBestScore[i] = population[i].Fitness;
@@ -67,11 +69,11 @@ namespace GaSchedule.Algorithm
             }
         }
 
-        private void UpdateVelocities(List<T> population, bool[] motility)
+        private void UpdateVelocities(List<T> population)
         {
             for (int i = 0; i < population.Count; ++i)
             {
-                if (!motility[i])
+                if (!_motility[i])
                     continue;
 
                 int dim = _velocity[i].Length;
@@ -89,7 +91,6 @@ namespace GaSchedule.Algorithm
         protected override List<T> Replacement(List<T> population)
         {
             int start = (int)(population.Count * _threshold);
-            var motility = new bool[population.Count];
 
             for (int i = 0; i < population.Count; ++i)
             {
@@ -100,24 +101,25 @@ namespace GaSchedule.Algorithm
                 {
                     population[i].UpdatePositions(_current_position[i]);
                     fitness = population[i].Fitness;
+                    _motility[i] = true;
                 }
 
                 if (fitness > _sBestScore[i])
                 {
-                    _sBestScore[i] = fitness;
-                    motility[i] = true;
+                    _sBestScore[i] = fitness;                    
                     _sBest[i] = _current_position[i].ToArray();
+                    _motility[i] = !_motility[i];
                 }
 
                 if (fitness > _sgBestScore)
                 {
                     _sgBestScore = fitness;
-                    motility[i] = true;
                     _sgBest = _current_position[i].ToArray();
+                    _motility[i] = !_motility[i];
                 }
             }
 
-            UpdateVelocities(population, motility);
+            UpdateVelocities(population);
             return base.Replacement(population);
         }
 
