@@ -115,7 +115,6 @@ namespace GaSchedule.Algorithm
                 {
                     _sgBestScore = fitness;
                     _sgBest = _current_position[i].ToArray();
-                    _motility[i] = !_motility[i];
                 }
             }
 
