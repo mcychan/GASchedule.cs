@@ -57,7 +57,7 @@ namespace GaSchedule.Algorithm
                     _sBest = CreateArray<float>(numberOfChromosomes, size);
                     _sgBest = new float[numberOfChromosomes];
                     _sBestScore = new float[numberOfChromosomes];
-                    _motility = new bool[population.Count];
+                    _motility = new bool[numberOfChromosomes];
                 }
 
                 _sBestScore[i] = population[i].Fitness;
