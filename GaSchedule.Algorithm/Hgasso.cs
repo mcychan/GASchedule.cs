@@ -97,7 +97,7 @@ namespace GaSchedule.Algorithm
                 var fitness = population[i].Fitness;
                 if (i < start)
                     population[i].ExtractPositions(_current_position[i]);
-                else if (fitness < _sBestScore[i])
+                else if (fitness < _sBestScore[i] || (fitness == _sBestScore[i] && _repeatRatio > .75f))
                 {
                     population[i].UpdatePositions(_current_position[i]);
                     fitness = population[i].Fitness;
