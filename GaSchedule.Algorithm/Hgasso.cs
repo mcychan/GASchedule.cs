@@ -111,6 +111,9 @@ namespace GaSchedule.Algorithm
                     _sgBest = _current_position[i].ToArray();
                     _motility[i] = !_motility[i];
                 }
+                
+                if(_repeatRatio > _sBestScore[i])
+                    _sBestScore[i] -= _repeatRatio * .25f;
             }
 
             UpdateVelocities(population);
