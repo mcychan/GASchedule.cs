@@ -16,7 +16,6 @@ namespace GaSchedule.Algorithm
     public class Hgasso<T> : NsgaII<T> where T : Chromosome<T>
     {
         private float _sgBestScore;
-        private double _threshold = .25;
         private bool[] _motility;
         private float[] _sBestScore;
         private float[] _sgBest = null;
@@ -90,14 +89,10 @@ namespace GaSchedule.Algorithm
 
         protected override List<T> Replacement(List<T> population)
         {
-            int start = (int)(population.Count * _threshold);
-
             for (int i = 0; i < population.Count; ++i)
             {
                 var fitness = population[i].Fitness;
-                if (i < start)
-                    population[i].ExtractPositions(_current_position[i]);
-                else if (fitness < _sBestScore[i])
+                if (fitness < _sBestScore[i])
                 {
                     population[i].UpdatePositions(_current_position[i]);
                     fitness = population[i].Fitness;
