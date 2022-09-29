@@ -35,6 +35,8 @@ namespace GaSchedule.Algorithm
 
 		// Probability that mutation will occur
 		private float _mutationProbability;
+		
+		protected float _repeatRatio;
 
 		// Initializes NsgaII
 		private NsgaII(T prototype, int numberOfChromosomes)
@@ -225,6 +227,7 @@ namespace GaSchedule.Algorithm
 					else
 						repeat = 0;
 
+					_repeatRatio = repeat * 100.0f / maxRepeat;
 					if (repeat > (maxRepeat / 100))
 						Reform();
 
