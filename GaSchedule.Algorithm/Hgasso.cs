@@ -15,6 +15,7 @@ namespace GaSchedule.Algorithm
     /****************** Hybrid Genetic Algorithm and Sperm Swarm Optimization (HGASSO) **********************/
     public class Hgasso<T> : NsgaII<T> where T : Chromosome<T>
     {
+        private float _decline = .25f;
         private float _sgBestScore;
         private bool[] _motility;
         private float[] _sBestScore;
@@ -89,6 +90,7 @@ namespace GaSchedule.Algorithm
 
         protected override List<T> Replacement(List<T> population)
         {
+            var climax = 1 - _decline;
             for (int i = 0; i < population.Count; ++i)
             {
                 var fitness = population[i].Fitness;
@@ -113,7 +115,9 @@ namespace GaSchedule.Algorithm
                 }
                 
                 if(_repeatRatio > _sBestScore[i])
-                    _sBestScore[i] -= _repeatRatio * .25f;
+                    _sBestScore[i] -= _repeatRatio * _decline;
+                if(_repeatRatio > climax && _sgBestScore > climax)
+                    _sBestScore[i] -= _repeatRatio * _decline;
             }
 
             UpdateVelocities(population);
