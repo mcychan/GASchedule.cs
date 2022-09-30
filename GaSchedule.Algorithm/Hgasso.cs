@@ -91,7 +91,9 @@ namespace GaSchedule.Algorithm
         protected override List<T> Replacement(List<T> population)
         {
             var climax = 1 - _decline;
-            for (int i = 0; i < population.Count; ++i)
+            var populationSize = population.Count;
+            
+            for (int i = 0; i < populationSize; ++i)
             {
                 var fitness = population[i].Fitness;
                 if (fitness < _sBestScore[i])
@@ -116,8 +118,12 @@ namespace GaSchedule.Algorithm
                 
                 if(_repeatRatio > _sBestScore[i])
                     _sBestScore[i] -= _repeatRatio * _decline;
-                if(_repeatRatio > climax && _sgBestScore > climax)
-                    _sBestScore[i] -= _repeatRatio * _decline;
+                if(_repeatRatio > climax && _sgBestScore > climax) {
+                    if (i > (populationSize * _sgBestScore)) {
+                        population[i].UpdatePositions(_current_position[i]);
+                        _motility[i] = true;
+                    }					
+                }
             }
 
             UpdateVelocities(population);
