@@ -120,7 +120,7 @@ namespace GaSchedule.Algorithm
                 if(_repeatRatio > _climax && _sgBestScore > _climax) {
                     if (i > (populationSize * _sgBestScore)) {
                         population[i].UpdatePositions(_current_position[i]);
-                        _motility[i] = !_motility[i];
+                        _motility[i] = true;
                     }					
                 }
             }
