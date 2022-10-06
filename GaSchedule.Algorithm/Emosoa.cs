@@ -45,8 +45,8 @@ namespace GaSchedule.Algorithm
 				int dim = _current_position[i].Length;
 				for (int j = 0; j < dim; ++j)
 				{
-					var A1 = 2 * Fc * Configuration.random() - Fc;
-					var ll = (Fc - 1) * Configuration.random() + 1;
+					var A1 = 2 * Fc * Configuration.Random() - Fc;
+					var ll = (Fc - 1) * Configuration.Random() + 1;
 
 					var D_alphs = Fc * _current_position[i][j] + A1 * (_gBest[j] - _current_position[i][j]);
 					_current_position[i][j] = (float)(D_alphs * Math.Exp(b * ll) * Math.Cos(ll * tau) + _gBest[j]);
@@ -70,18 +70,18 @@ namespace GaSchedule.Algorithm
 
 				if (fitness > _bestScore[i])
 				{
-					_sBestScore[i] = fitness;
+					_bestScore[i] = fitness;
 					population[i].ExtractPositions(_current_position[i]);
 				}
 
 				if (fitness > _gBestScore)
 				{
-					_sgBestScore = fitness;
+					_gBestScore = fitness;
 					population[i].ExtractPositions(_current_position[i]);
 					_gBest = _current_position[i].ToArray();
 				}
 
-				if (_repeatRatio > climax && _sgBestScore > climax) {
+				if (_repeatRatio > climax && _gBestScore > climax) {
 					if (i > (populationSize * _repeatRatio))
 						population[i].UpdatePositions(_current_position[i]);
 				}
@@ -111,7 +111,7 @@ namespace GaSchedule.Algorithm
 					_bestScore = new float[numberOfChromosomes];
 				}
 
-				_sBestScore[i] = population[i].Fitness;
+				_bestScore[i] = population[i].Fitness;
 				for (int j = 0; j < size; ++j)
 					_current_position[i][j] = positions[j];
 			}
