@@ -16,7 +16,7 @@ namespace GaSchedule.Algorithm
 	public class NsgaII<T> where T : Chromosome<T>
 	{
 		// Population of chromosomes
-		private T[] _chromosomes;
+		protected T[] _chromosomes;
 
 		// Prototype of chromosomes in population
 		protected T _prototype;
@@ -133,7 +133,7 @@ namespace GaSchedule.Algorithm
 			return distance;
 		}
 
-		private List<T> Selection(List<ISet<int> > front, List<T> totalChromosome)
+		protected List<T> Selection(List<ISet<int> > front, List<T> totalChromosome)
 		{
 			int N = 0;
 			var newPop = new List<int>();
