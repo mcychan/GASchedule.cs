@@ -28,13 +28,13 @@ namespace GaSchedule.Algorithm
 		protected int _numberOfCrossoverPoints;
 
 		// Number of classes that is moved randomly by single mutation operation
-		private int _mutationSize;
+		protected int _mutationSize;
 
 		// Probability that crossover will occur
 		protected float _crossoverProbability;
 
 		// Probability that mutation will occur
-		private float _mutationProbability;
+		protected float _mutationProbability;
 		
 		protected float _repeatRatio;
 
@@ -60,7 +60,7 @@ namespace GaSchedule.Algorithm
 		public T Result => (_chromosomes == null) ? default(T) : _chromosomes[0];
 
 		/************** non-dominated sorting function ***************************/
-		private List<ISet<int> > NonDominatedSorting(List<T> totalChromosome)
+		protected List<ISet<int> > NonDominatedSorting(List<T> totalChromosome)
 		{
 			var s = new HashSet<int>[_populationSize * 2];
 			var n = new int[s.Length];
@@ -186,7 +186,7 @@ namespace GaSchedule.Algorithm
 				population.Add(_prototype.MakeNewFromPrototype());
 		}
 
-		private void Reform()
+		protected void Reform()
 		{
 			Configuration.Seed();
 			if (_crossoverProbability < 95)
