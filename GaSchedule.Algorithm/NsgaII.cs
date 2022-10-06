@@ -196,7 +196,7 @@ namespace GaSchedule.Algorithm
 		}
 
 		// Starts and executes algorithm
-		public void Run(int maxRepeat = 9999, double minFitness = 0.999)
+		public virtual void Run(int maxRepeat = 9999, double minFitness = 0.999)
 		{
 			if (_prototype == null)
 				return;
