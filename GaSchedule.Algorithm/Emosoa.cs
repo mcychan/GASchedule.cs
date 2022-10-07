@@ -53,7 +53,7 @@ namespace GaSchedule.Algorithm
 					var theta = Configuration.Rand(0d, tau);
 					var r = Math.Exp(theta);
 
-					var x = r * Math.Cos(theta), y = r * Math.Sin(theta), z = r * theta;
+					double x = r * Math.Cos(theta), y = r * Math.Sin(theta), z = r * theta;
 					_current_position[i][j] = (float)(D * x * y * z + _gBest[j]);
 				}
 			}
