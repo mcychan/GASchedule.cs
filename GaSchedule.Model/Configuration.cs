@@ -20,18 +20,18 @@ namespace GaSchedule.Model
 		// Parsed rooms
 		private readonly Dictionary<int, Room> _rooms;
 
-        // Generate a random number  
-        private static Random _random = new(DateTime.Now.Millisecond);
+		// Generate a random number  
+		private static Random _random = new(DateTime.Now.Millisecond);
 
 		// Initialize data
 		public Configuration()  {
 			Empty = true;
 			_professors = new();
 			_studentGroups = new();
-            _courses = new();
-            _rooms = new();
-            CourseClasses = new();
-        }
+			_courses = new();
+			_rooms = new();
+			CourseClasses = new();
+		}
 
 		// Returns professor with specified ID
 		// If there is no professor with such ID method returns NULL
@@ -80,16 +80,16 @@ namespace GaSchedule.Model
 		// Returns number of parsed rooms
 		public int NumberOfRooms => _rooms.Count;
 
-        // Returns reference to list of parsed classes
-        public List<CourseClass> CourseClasses { get; }
+		// Returns reference to list of parsed classes
+		public List<CourseClass> CourseClasses { get; }
 
-        // Returns number of parsed classes
-        public int NumberOfCourseClasses => CourseClasses.Count;
+		// Returns number of parsed classes
+		public int NumberOfCourseClasses => CourseClasses.Count;
 
-        // Returns TRUE if configuration is not parsed yet
-        public bool Empty { get; private set; }
+		// Returns TRUE if configuration is not parsed yet
+		public bool Empty { get; private set; }
 
-        private static void GetMember<T>(JsonElement element, ref T value)
+		private static void GetMember<T>(JsonElement element, ref T value)
 		{
 			switch (element.ValueKind)
 			{
@@ -203,9 +203,9 @@ namespace GaSchedule.Model
 
 			var groups = new List<StudentsGroup>();
 			foreach(string key in data.Keys)
-            {
+			{
 				switch(key)
-                {
+				{
 					case "professor":
 						GetMember(data[key], ref pid);
 						break;
@@ -239,8 +239,8 @@ namespace GaSchedule.Model
 								groups.Add(g);
 						}
 						break;
-                }
-            }
+				}
+			}
 
 			// get professor who teaches class and course to which this class belongs
 			Professor p = GetProfessorById(pid);
@@ -265,10 +265,10 @@ namespace GaSchedule.Model
 			CourseClasses.Clear();
 
 			Room.RestartIDs();
-            CourseClass.RestartIDs();
+			CourseClass.RestartIDs();
 
-            // read file into a string and deserialize JSON to a type
-            var data = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, JsonElement> >[]>(File.ReadAllText(fileName));
+			// read file into a string and deserialize JSON to a type
+			var data = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, JsonElement> >[]>(File.ReadAllText(fileName));
 			foreach (Dictionary<string, Dictionary<string, JsonElement> > item in data)
 			{
 				foreach (var obj in item)
@@ -319,7 +319,7 @@ namespace GaSchedule.Model
             return min + Rand(max - min + 1);
         }
 
-        public static double Rand(float min, float max)
+        public static double Rand(double min, double max)
         {
             return min + _random.NextDouble() * (max - min);
         }
