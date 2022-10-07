@@ -37,19 +37,24 @@ namespace GaSchedule.Algorithm
 
 		private void Exploitation(List<T> population)
 		{
-			int b = 1;
-			var Fc = 2f - _currentGeneration * (2f / _max_iterations);
 			var tau = 2 * Math.PI;
+
+			var A = 2 - _currentGeneration * (2.0 / _max_iterations);
+			var B = (2 * A * A) * Configuration.Random();
+
 			for (int i = 0; i < population.Count; ++i)
 			{
 				int dim = _current_position[i].Length;
 				for (int j = 0; j < dim; ++j)
 				{
-					var A1 = 2 * Fc * Configuration.Random() - Fc;
-					var ll = (Fc - 1) * Configuration.Random() + 1;
+					var C = A * _current_position[i][j];
+					var M = B * (_gBest[j] - _current_position[i][j]);
+					var D = Math.Abs(C + M);
+					var theta = Configuration.Rand(0d, tau);
+					var r = Math.Exp(theta);
 
-					var D_alphs = Fc * _current_position[i][j] + A1 * (_gBest[j] - _current_position[i][j]);
-					_current_position[i][j] = (float)(D_alphs * Math.Exp(b * ll) * Math.Cos(ll * tau) + _gBest[j]);
+					var x = r * Math.Cos(theta), y = r * Math.Sin(theta), z = r * theta;
+					_current_position[i][j] = (float)(D * x * y * z + _gBest[j]);
 				}
 			}
 		}
