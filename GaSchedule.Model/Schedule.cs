@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace GaSchedule.Model
 {
@@ -58,15 +57,24 @@ namespace GaSchedule.Model
 				// determine random position of class
 				int dur = courseClass.Duration;
 
-				int day = Configuration.Rand(0, Constant.DAYS_NUM - 1);
-				int room = Configuration.Rand(0, nr - 1);
-				int time = Configuration.Rand(0, Constant.DAY_HOURS - 1 - dur);
-				var reservation = Reservation.GetReservation(nr, day, time, room);
+                Reservation reservation = null;
+                int retry = 0, maxRetry = newChromosome.Slots.Length / dur;
+                while (retry++ < maxRetry)
+                {
+                    int day = Configuration.Rand(0, Constant.DAYS_NUM - 1);
+                    int room = Configuration.Rand(0, nr - 1);
+                    int time = Configuration.Rand(0, (Constant.DAY_HOURS - 1 - dur));
+                    reservation = Reservation.GetReservation(nr, day, time, room);
+
+                    if (!Model.Criteria.IsRoomOverlapped(newChromosome.Slots, reservation, dur))
+                        break;
+                }
+
 				if (positions != null)
 				{
-					positions.Add(day * 1.0f);
-					positions.Add(room * 1.0f);
-					positions.Add(time * 1.0f);
+					positions.Add(reservation.Day * 1.0f);
+					positions.Add(reservation.Room * 1.0f);
+					positions.Add(reservation.Time * 1.0f);
 				}
 
 				// fill time-space slots, for each hour of class
@@ -213,23 +221,39 @@ namespace GaSchedule.Model
 			return n;
 		}
 
-		private void Repair(CourseClass cc1, int reservation1_index, Reservation reservation2)
+		private int Repair(CourseClass cc1, int reservation1_index, Reservation reservation2)
 		{
 			int dur = cc1.Duration;
-			// move all time-space slots
-			for (int j = dur - 1; j >= 0; --j)
+            int nr = Configuration.NumberOfRooms;
+
+            for (int j = dur - 1; j >= 0; --j)
 			{
 				// remove class hour from current time-space slot
 				var cl = Slots[reservation1_index + j];
 				cl.RemoveAll(cc => cc == cc1);
-
-				// move class hour to new time-space slot
-				Slots[reservation2.GetHashCode() + j].Add(cc1);
 			}
 
-			// change entry of class table to point to new time-space slots
-			Classes[cc1] = reservation2.GetHashCode();
-		}
+            int retry = reservation2 != null ? 1 : 0, maxRetry = Slots.Length / dur;
+            while (retry++ < maxRetry)
+            {
+                if (reservation2 != null && !Model.Criteria.IsRoomOverlapped(Slots, reservation2, dur))
+                    break;
+
+                int day = Configuration.Rand(0, Constant.DAYS_NUM - 1);
+                int room = Configuration.Rand(0, nr - 1);
+                int time = Configuration.Rand(0, (Constant.DAY_HOURS - 1 - dur));
+                reservation2 = Reservation.GetReservation(nr, day, time, room);
+            }
+            for (int j = dur - 1; j >= 0; --j)
+            {
+                // move class hour to new time-space slot
+                Slots[reservation2.GetHashCode() + j].Add(cc1);
+            }
+
+            // change entry of class table to point to new time-space slots
+            Classes[cc1] = reservation2.GetHashCode();
+			return reservation2.GetHashCode();
+        }
 
 		// Performs mutation on chromosome
 		public void Mutation(int mutationSize, float mutationProbability)
@@ -240,7 +264,6 @@ namespace GaSchedule.Model
 
 			// number of classes
 			int numberOfClasses = Classes.Count;
-			int nr = Configuration.NumberOfRooms;
 
 			// move selected number of classes at random position
 			for (int i = mutationSize; i > 0; --i)
@@ -250,15 +273,7 @@ namespace GaSchedule.Model
 
 				// current time-space slot used by class
 				var cc1 = Classes.Keys.ElementAt(mpos);
-
-				// determine position of class randomly				
-				int dur = cc1.Duration;
-				int day = Configuration.Rand(0, Constant.DAYS_NUM - 1);
-				int room = Configuration.Rand(0, nr - 1);
-				int time = Configuration.Rand(0, Constant.DAY_HOURS - 1 - dur);
-				var reservation2 = Reservation.GetReservation(nr, day, time, room);
-
-				Repair(cc1, Classes[cc1], reservation2);
+				Repair(cc1, Classes[cc1], null);
 			}
 
 			CalculateFitness();
@@ -311,7 +326,7 @@ namespace GaSchedule.Model
 				else
 					score /= 2;
 
-				var total_overlap = Model.Criteria.IsOverlappedProfStudentGrp(Slots, cc, numberOfRooms, day * daySize + time, dur);
+				var total_overlap = Model.Criteria.IsOverlappedProfStudentGrp(Slots, cc, numberOfRooms, day * daySize + time);
 
 				// professors have no overlapping classes?
 				if (!total_overlap[0])
@@ -354,14 +369,12 @@ namespace GaSchedule.Model
 
 		public int GetDifference(Schedule other)
 		{
-			int val = 0;
-			for (int i = 0; i < Criteria.Length && i < other.Criteria.Length; ++i)
-			{
-				if (Criteria[i] ^ other.Criteria[i])
-					++val;
-			}
-			return val;
-		}
+            int val = 0;
+            for (int i = 0; i < Slots.Length && i < other.Slots.Length; ++i)
+                val += Math.Abs(Slots[i].Count - other.Slots[i].Count);
+
+            return val;
+        }
 		
 		public void ExtractPositions(float[] positions)
 		{
@@ -377,18 +390,22 @@ namespace GaSchedule.Model
 
 		public void UpdatePositions(float[] positions)
 		{
-			int nr = Configuration.NumberOfRooms;
-			int i = 0;
+            int nr = Configuration.NumberOfRooms;
+            int i = 0;
 			var classes = Classes.Keys.ToArray();
             foreach (var cc in classes)
 			{
-				int day = Math.Abs((int) positions[i++] % Constant.DAYS_NUM);			
-				int room = Math.Abs((int) positions[i++] % nr);			
-				int time = Math.Abs((int) positions[i++] % (Constant.DAY_HOURS - cc.Duration));
+				int day = Math.Abs((int) positions[i] % Constant.DAYS_NUM);			
+				int room = Math.Abs((int) positions[i + 1] % nr);			
+				int time = Math.Abs((int) positions[i + 2] % (Constant.DAY_HOURS - cc.Duration));
 
 				var reservation2 = Reservation.GetReservation(nr, day, time, room);
-				Repair(cc, Classes[cc], reservation2);
-			}
+                reservation2 = Reservation.GetReservation(Repair(cc, Classes[cc], reservation2));
+
+                positions[i++] = reservation2.Day;
+                positions[i++] = reservation2.Room;
+                positions[i++] = reservation2.Time;
+            }
 
 			CalculateFitness();
 		}

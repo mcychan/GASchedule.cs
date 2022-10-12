@@ -27,10 +27,11 @@ namespace GaSchedule.Model
             return !cc.LabRequired || (cc.LabRequired && r.Lab);
         }
 
-        internal static bool[] IsOverlappedProfStudentGrp(List<CourseClass>[] slots, CourseClass cc, int numberOfRooms, int timeId, int dur)
+        internal static bool[] IsOverlappedProfStudentGrp(List<CourseClass>[] slots, CourseClass cc, int numberOfRooms, int timeId)
         {
             bool po = false, go = false;
 
+            int dur = cc.Duration;
             // check overlapping of classes for professors and student groups
             for (int i = numberOfRooms; i > 0; --i, timeId += Constant.DAY_HOURS)
             {
