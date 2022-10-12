@@ -371,9 +371,11 @@ namespace GaSchedule.Model
 		public int GetDifference(Schedule other)
 		{
 			int val = 0;
-			for (int i = 0; i < Slots.Length && i < other.Slots.Length; ++i)
-				val += Math.Abs(Slots[i].Count - other.Slots[i].Count);
-
+			for (int i = 0; i < Criteria.Length && i < other.Criteria.Length; ++i)
+			{
+				if (Criteria[i] ^ other.Criteria[i])
+					++val;
+			}
 			return val;
 		}
 		
