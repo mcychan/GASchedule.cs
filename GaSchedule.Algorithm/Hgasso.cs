@@ -91,7 +91,6 @@ namespace GaSchedule.Algorithm
         protected override List<T> Replacement(List<T> population)
         {
             var populationSize = population.Count;
-            var decline = 1 - _climax;
 
             for (int i = 0; i < populationSize; ++i)
             {
