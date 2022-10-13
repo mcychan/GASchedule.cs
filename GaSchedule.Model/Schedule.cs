@@ -213,7 +213,7 @@ namespace GaSchedule.Model
 			return n;
 		}
 
-		private int Repair(CourseClass cc1, int reservation1_index, Reservation reservation2)
+		private void Repair(CourseClass cc1, int reservation1_index, Reservation reservation2)
 		{
 			int dur = cc1.Duration;
 			int nr = Configuration.NumberOfRooms;
@@ -241,7 +241,6 @@ namespace GaSchedule.Model
 
 			// change entry of class table to point to new time-space slots
 			Classes[cc1] = reservation2.GetHashCode();
-			return reservation2.GetHashCode();
 		}
 
 		// Performs mutation on chromosome
@@ -391,7 +390,7 @@ namespace GaSchedule.Model
 				int time = Math.Abs((int) positions[i + 2] % (Constant.DAY_HOURS - cc.Duration));
 
 				var reservation2 = Reservation.GetReservation(nr, day, time, room);
-				reservation2 = Reservation.GetReservation(Repair(cc, Classes[cc], reservation2));
+				Repair(cc, Classes[cc], reservation2);
 
 				positions[i++] = reservation2.Day;
 				positions[i++] = reservation2.Room;
