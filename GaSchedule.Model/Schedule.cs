@@ -57,18 +57,10 @@ namespace GaSchedule.Model
 				// determine random position of class
 				int dur = courseClass.Duration;
 
-				Reservation reservation = null;
-				int retry = 0, maxRetry = newChromosome.Slots.Length / dur;
-				while (retry++ < maxRetry)
-				{
-					int day = Configuration.Rand(0, Constant.DAYS_NUM - 1);
-					int room = Configuration.Rand(0, nr - 1);
-					int time = Configuration.Rand(0, (Constant.DAY_HOURS - 1 - dur));
-					reservation = Reservation.GetReservation(nr, day, time, room);
-
-					if (!Model.Criteria.IsRoomOverlapped(newChromosome.Slots, reservation, dur))
-						break;
-				}
+				int day = Configuration.Rand(0, Constant.DAYS_NUM - 1);
+				int room = Configuration.Rand(0, nr - 1);
+				int time = Configuration.Rand(0, (Constant.DAY_HOURS - 1 - dur));
+				var reservation = Reservation.GetReservation(nr, day, time, room);
 
 				if (positions != null)
 				{
@@ -233,12 +225,8 @@ namespace GaSchedule.Model
 				cl.RemoveAll(cc => cc == cc1);
 			}
 
-			int retry = reservation2 != null ? 1 : 0, maxRetry = Slots.Length / dur;
-			while (retry++ < maxRetry)
+			if (reservation2 == null)
 			{
-				if (reservation2 != null && !Model.Criteria.IsRoomOverlapped(Slots, reservation2, dur))
-					break;
-
 				int day = Configuration.Rand(0, Constant.DAYS_NUM - 1);
 				int room = Configuration.Rand(0, nr - 1);
 				int time = Configuration.Rand(0, (Constant.DAY_HOURS - 1 - dur));
