@@ -334,7 +334,7 @@ namespace GaSchedule.Model
 			}
 
 			// calculate fitess value based on score
-			Fitness = (float)score / (Configuration.NumberOfCourseClasses * Constant.DAYS_NUM);
+			Fitness = (float)score / Criteria.Length;
 		}
 
 		// Returns fitness value of chromosome
