@@ -27,7 +27,19 @@ namespace GaSchedule.Model
 		private Schedule Copy(Schedule c, bool setupOnly)
 		{
 			if (!setupOnly)
+			{
+				// copy code
+				Slots = c.Slots.ToArray();
+				Classes = new(c.Classes);
+
+				// copy flags of class requirements
+				Criteria = c.Criteria.ToArray();
+
+				// copy fitness
+				Fitness = c.Fitness;
+				Configuration = c.Configuration;
 				return this;
+			}
 			return new Schedule(c.Configuration);
 		}
 
