@@ -386,18 +386,9 @@ namespace GaSchedule.Model
 			foreach (var cc in classes)
 			{
 				int dur = cc.Duration;
-				int day = Math.Abs((int) positions[i]);			
-				int room = Math.Abs((int) positions[i + 1]);			
-				int time = Math.Abs((int) positions[i + 2]);
-				
-				if(day >= Constant.DAYS_NUM)
-					day = Constant.DAYS_NUM - 1;
-					
-				if(room >= nr)
-					room = nr - 1;
-					
-				if(time >= (Constant.DAY_HOURS - dur))
-					time = Constant.DAY_HOURS - 1 - dur;
+				int day = Math.Abs((int) positions[i] % Constant.DAYS_NUM);			
+				int room = Math.Abs((int) positions[i + 1] % nr);			
+				int time = Math.Abs((int) positions[i + 2] % (Constant.DAY_HOURS - cc.Duration));
 
 				var reservation2 = Reservation.GetReservation(nr, day, time, room);
 				Repair(cc, Classes[cc], reservation2);
