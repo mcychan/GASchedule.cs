@@ -385,6 +385,7 @@ namespace GaSchedule.Model
 			var classes = Classes.Keys.ToArray();
 			foreach (var cc in classes)
 			{
+				int dur = cc.Duration;
 				int day = Math.Abs((int) positions[i]);			
 				int room = Math.Abs((int) positions[i + 1]);			
 				int time = Math.Abs((int) positions[i + 2]);
