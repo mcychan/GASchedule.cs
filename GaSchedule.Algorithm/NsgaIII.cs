@@ -5,18 +5,18 @@ using System.Linq;
 using GaSchedule.Model;
 
 /*
- * K.Deb, A.Pratap, S.Agrawal, T.Meyarivan, A fast and elitist multiobjective genetic algorithm: 
- * NSGA-II, IEEE Transactions on Evolutionary Computation 6 (2002) 182–197.
- * Copyright (c) 2020 - 2022 Miller Cy Chan
+ * Deb K , Jain H . An Evolutionary Many-Objective Optimization Algorithm Using Reference Point-Based Nondominated Sorting Approach,
+ * Part I: Solving Problems With Box Constraints[J]. IEEE Transactions on Evolutionary Computation, 2014, 18(4):577-601.
+ * Copyright (c) 2023 Miller Cy Chan
  */
 
 namespace GaSchedule.Algorithm
 {
-	// NSGA II
+	// NSGA III
 	public class NsgaIII<T> where T : Chromosome<T>
 	{
-		// Population of chromosomes
-		protected List<T> _chromosomes;
+		// Best of chromosomes
+		protected T _best;
 
 		// Prototype of chromosomes in population
 		protected T _prototype;
@@ -57,7 +57,7 @@ namespace GaSchedule.Algorithm
 		}
 
 		// Returns pointer to best chromosomes in population
-		public T Result => (_chromosomes == null) ? default(T) : _chromosomes[0];
+		public T Result => _best;
 
 		protected sealed class ReferencePoint {
 			public int MemberSize { get; private set; }
@@ -335,7 +335,7 @@ namespace GaSchedule.Algorithm
 		}
 	
 
-		private static void NormalizeObjectives(List<T> pop, List<List<int> > fronts, List<double> intercepts, List<double> ideal_point)
+		private static void NormalizeObjectives(List<T> pop, List<List<int> > fronts, List<double> intercepts)
 		{		
 			foreach (var front in fronts) {
 				for (int i = 0; i < front.Count; ++i) {
@@ -414,16 +414,13 @@ namespace GaSchedule.Algorithm
 		}
 	
 
-		private static List<double> TranslateObjectives(List<T> pop, List<List<int> > fronts)
+		private static void TranslateObjectives(List<T> pop, List<List<int> > fronts)
 		{
-			var idealPoint = new List<double>();
 			var numObj = pop[0].Objectives.Length;
 			for (int f = 0; f < numObj; ++f) {
 				var minf = Double.MaxValue;
 				foreach (var frontIndv in fronts[0]) // min values must appear in the first front
 					minf = Math.Min(minf, pop[frontIndv].Objectives[f]);
-
-				idealPoint.Add(minf);
 
 				foreach (var front in fronts) {
 					foreach (var ind in front) {				
@@ -433,8 +430,6 @@ namespace GaSchedule.Algorithm
 					}
 				}
 			}
-
-			return idealPoint;
 		}
 
 		protected List<T> Selection(List<T> cur, List<ReferencePoint> rps) {
@@ -461,13 +456,13 @@ namespace GaSchedule.Algorithm
 				return next.OrderByDescending(chromosome => chromosome.Fitness).ToList();
 
             // ---------- Step 14 / Algorithm 2 ----------
-            var idealPoint = TranslateObjectives(cur, fronts);
+            TranslateObjectives(cur, fronts);
 			
 			var extremePoints = FindExtremePoints(cur, fronts);
 
 			var intercepts = ConstructHyperplane(cur, extremePoints);
 
-            NormalizeObjectives(cur, fronts, intercepts, idealPoint);
+            NormalizeObjectives(cur, fronts, intercepts);
 
 			// ---------- Step 15 / Algorithm 3, Step 16 ----------
 			Associate(rps, cur, fronts);
@@ -577,11 +572,12 @@ namespace GaSchedule.Algorithm
 
 				/******************* selection *****************/
 				var rps = new List<ReferencePoint>();			
-				ReferencePoint.GenerateReferencePoints(rps, Constant.CRITERIA_NUM, objDivision);			
-				pop[next] = _chromosomes = Selection(pop[cur], rps);
+				ReferencePoint.GenerateReferencePoints(rps, Constant.CRITERIA_NUM, objDivision);				
+                pop[next] = Selection(pop[cur], rps);
+                _best = pop[next][0];
 
-				/******************* comparison *****************/
-				if (currentGeneration > 0)
+                /******************* comparison *****************/
+                if (currentGeneration > 0)
 					lastBestFit = best.Fitness;
 				
 				(cur, next) = (next, cur);
