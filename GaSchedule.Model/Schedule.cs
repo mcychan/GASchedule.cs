@@ -20,10 +20,10 @@ namespace GaSchedule.Model
 			Classes = new();
 
 			// reserve space for flags of class requirements
-			Criteria = new bool[Configuration.NumberOfCourseClasses * Constant.CRITERIA_NUM];
+			Criteria = new bool[Configuration.NumberOfCourseClasses * Model.Criteria.Weights.Length];
 			
 			// increment value when criteria violation occurs
-			Objectives = new double[Constant.CRITERIA_NUM];
+			Objectives = new double[Model.Criteria.Weights.Length];
 		}
 
 		// Copy constructor
@@ -278,10 +278,10 @@ namespace GaSchedule.Model
 		public void CalculateFitness()
 		{
 			// increment value when criteria violation occurs
-			Objectives = new double[Constant.CRITERIA_NUM];
+			Objectives = new double[Model.Criteria.Weights.Length];
 		
 			// chromosome's score
-			int score = 0;
+			float score = 0;
 
 			int numberOfRooms = Configuration.NumberOfRooms;
 			int daySize = Constant.DAY_HOURS * numberOfRooms;
@@ -305,7 +305,7 @@ namespace GaSchedule.Model
 				if (!ro)
 					score++;
 				else
-					score = 0;
+					score *= Model.Criteria.Weights[0];
 
 				Criteria[ci + 0] = !ro;
 				
@@ -315,14 +315,14 @@ namespace GaSchedule.Model
 				if (Criteria[ci + 1])
 					score++;
 				else
-					score /= 2;
+                    score *= Model.Criteria.Weights[1];
 
 				// does current room have computers if they are required
 				Criteria[ci + 2] = Model.Criteria.IsComputerEnough(r, cc);
 				if (Criteria[ci + 2])
 					score++;
 				else
-					score /= 2;
+                    score *= Model.Criteria.Weights[2];
 
 				var total_overlap = Model.Criteria.IsOverlappedProfStudentGrp(Slots, cc, numberOfRooms, day * daySize + time);
 
@@ -330,25 +330,28 @@ namespace GaSchedule.Model
 				if (!total_overlap[0])
 					score++;
 				else
-					score = 0;
+                    score *= Model.Criteria.Weights[3];
 				Criteria[ci + 3] = !total_overlap[0];
 
 				// student groups has no overlapping classes?
 				if (!total_overlap[1])
 					score++;
 				else
-					score = 0;
+                    score *= Model.Criteria.Weights[4];
 				Criteria[ci + 4] = !total_overlap[1];
 
 				for(int i = 0; i < Objectives.Length; ++i) {
-					if(!Criteria[ci + i])
-						++Objectives[i];
+					if (!Criteria[ci + i])
+					{
+						var weight = Model.Criteria.Weights[i];
+                        Objectives[i] += weight > 0.1f ? 2 : 1;
+                    }
 				}
-				ci += Constant.CRITERIA_NUM;
+				ci += Model.Criteria.Weights.Length;
 			}
 
 			// calculate fitess value based on score
-			Fitness = (float)score / Criteria.Length;
+			Fitness = score / Criteria.Length;
 		}
 
 		// Returns fitness value of chromosome

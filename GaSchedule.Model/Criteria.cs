@@ -2,7 +2,7 @@
 
 namespace GaSchedule.Model
 {
-    class Criteria
+    public class Criteria
     {
         internal static bool IsRoomOverlapped(List<CourseClass>[] slots, Reservation reservation, int dur)
         {
@@ -62,5 +62,7 @@ namespace GaSchedule.Model
 
             return new bool[] { po, go };
         }
+
+        public static readonly float[] Weights = { 0f, .5f, .5f, 0f, 0f };
     }
 }

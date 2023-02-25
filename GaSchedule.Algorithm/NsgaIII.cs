@@ -520,7 +520,7 @@ namespace GaSchedule.Algorithm
 				return;
 			
 			var objDivision = new List<int>();
-			if(Constant.CRITERIA_NUM < 8)
+			if(Criteria.Weights.Length < 8)
 				objDivision.Add(6);
 			else {
 				objDivision.Add(3);
@@ -572,7 +572,7 @@ namespace GaSchedule.Algorithm
 
 				/******************* selection *****************/
 				var rps = new List<ReferencePoint>();			
-				ReferencePoint.GenerateReferencePoints(rps, Constant.CRITERIA_NUM, objDivision);				
+				ReferencePoint.GenerateReferencePoints(rps, Criteria.Weights.Length, objDivision);				
                 pop[next] = Selection(pop[cur], rps);
                 _best = pop[next][0];
 
