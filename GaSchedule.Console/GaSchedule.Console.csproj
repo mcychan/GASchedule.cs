@@ -2,15 +2,17 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <AssemblyName>GaSchedule</AssemblyName>
-    <Copyright>Copyright © Miller Cy Chan 2022</Copyright>
+    <Copyright>Copyright © Miller Cy Chan 2022 - 2023</Copyright>
     <Product>GaSchedule.cs</Product>
     <Authors>Miller Cy Chan</Authors>
     <Company>DNAssist ®</Company>
     <RootNamespace>GaSchedule</RootNamespace>
-    <Version>1.2.1</Version>
-    <AssemblyVersion>1.2.1.0</AssemblyVersion>
+    <Version>1.2.3</Version>
+    <AssemblyVersion></AssemblyVersion>
+    <RepositoryUrl>https://github.com/mcychan/GASchedule.cs</RepositoryUrl>
+	<GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
 
   <ItemGroup>

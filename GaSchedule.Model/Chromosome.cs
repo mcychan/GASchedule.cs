@@ -25,6 +25,14 @@ namespace GaSchedule.Model
         public void ExtractPositions(float[] positions);
 
         public void UpdatePositions(float[] positions);
+		
+		public double[] Objectives { get; }
+    
+		public double[] ConvertedObjectives { get; }
+
+		public void ResizeConvertedObjectives(int numObj);
+    
+		public T Clone();
 
     }
 }

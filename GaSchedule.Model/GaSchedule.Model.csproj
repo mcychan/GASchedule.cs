@@ -1,7 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
+    <Company>Miller Cy Chan</Company>
+    <RepositoryUrl>https://github.com/mcychan/GASchedule.cs</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <AssemblyVersion></AssemblyVersion>
+    <FileVersion></FileVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>

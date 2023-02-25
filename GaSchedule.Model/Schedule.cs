@@ -21,6 +21,9 @@ namespace GaSchedule.Model
 
 			// reserve space for flags of class requirements
 			Criteria = new bool[Configuration.NumberOfCourseClasses * Constant.CRITERIA_NUM];
+			
+			// increment value when criteria violation occurs
+			Objectives = new double[Constant.CRITERIA_NUM];
 		}
 
 		// Copy constructor
@@ -37,6 +40,10 @@ namespace GaSchedule.Model
 
 				// copy fitness
 				Fitness = c.Fitness;
+				
+				if(c.ConvertedObjectives != null)
+					ConvertedObjectives = c.ConvertedObjectives.ToArray();
+				
 				Configuration = c.Configuration;
 				return this;
 			}
@@ -270,6 +277,9 @@ namespace GaSchedule.Model
 		// Calculates fitness value of chromosome
 		public void CalculateFitness()
 		{
+			// increment value when criteria violation occurs
+			Objectives = new double[Constant.CRITERIA_NUM];
+		
 			// chromosome's score
 			int score = 0;
 
@@ -330,6 +340,10 @@ namespace GaSchedule.Model
 					score = 0;
 				Criteria[ci + 4] = !total_overlap[1];
 
+				for(int i = 0; i < Objectives.Length; ++i) {
+					if(!Criteria[ci + i])
+						++Objectives[i];
+				}
 				ci += Constant.CRITERIA_NUM;
 			}
 
@@ -400,6 +414,20 @@ namespace GaSchedule.Model
 
 			CalculateFitness();
 		}
+		
+		public double[] ConvertedObjectives { get; private set; }
+		
+		public void ResizeConvertedObjectives(int numObj) {
+			if(ConvertedObjectives == null || ConvertedObjectives.Length < numObj)
+				ConvertedObjectives = new double[numObj];
+		}
+		
+		public double[] Objectives { get; private set; }
 
+		public Schedule Clone()
+		{
+			return Copy(this, false);
+		}
+		
 	}
 }

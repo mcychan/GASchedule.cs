@@ -5,6 +5,7 @@ using System.Reflection;
 using GaSchedule.Algorithm;
 using GaSchedule.Model;
 
+[assembly: AssemblyVersionAttribute("1.2.3")]
 namespace GaSchedule
 {
     class ConsoleApp
@@ -17,11 +18,11 @@ namespace GaSchedule
             var configuration = new Configuration();
             configuration.ParseFile(FILE_NAME);
 
-            var alg = new Hgasso<Schedule>(new Schedule(configuration));
+            var alg = new NsgaIII<Schedule>(new Schedule(configuration));
             // var alg = new Amga2<Schedule>(new Schedule(configuration));
 
             System.Console.WriteLine("GaSchedule Version {0} C# .NET Core. Making a Class Schedule Using {1}.", Assembly.GetExecutingAssembly().GetName().Version, alg.ToString());
-            System.Console.WriteLine("Copyright (C) 2022 Miller Cy Chan.");
+            System.Console.WriteLine("Copyright (C) 2022 - 2023 Miller Cy Chan.");
 
             alg.Run();
             var htmlResult = HtmlOutput.GetResult(alg.Result);
