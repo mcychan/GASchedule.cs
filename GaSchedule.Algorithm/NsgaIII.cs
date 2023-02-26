@@ -91,15 +91,12 @@ namespace GaSchedule.Algorithm
 
             public void AddPotentialMember(int memberInd, double distance)
 			{
-				if(!potentialMembers.ContainsKey(memberInd))
+				if(potentialMembers.TryGetValue(memberInd, out var currDistance))
 				{
-                    potentialMembers[memberInd] = distance;
-					return;
+                    if (distance >= currDistance)
+                        return;
                 }
-
-				var currDistance = potentialMembers[memberInd];
-				if(distance < currDistance)
-					potentialMembers[memberInd] = distance;
+                potentialMembers[memberInd] = distance;
 			}
 			
 			public int FindClosestMember()
@@ -574,7 +571,7 @@ namespace GaSchedule.Algorithm
 				var rps = new List<ReferencePoint>();			
 				ReferencePoint.GenerateReferencePoints(rps, Criteria.Weights.Length, objDivision);				
                 pop[next] = Selection(pop[cur], rps);
-                _best = pop[next][0];
+                _best = Dominate(pop[next][0], pop[cur][0]) ? pop[next][0] : pop[cur][0];
 
                 /******************* comparison *****************/
                 if (currentGeneration > 0)

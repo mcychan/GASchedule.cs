@@ -302,50 +302,31 @@ namespace GaSchedule.Model
 				var ro = Model.Criteria.IsRoomOverlapped(Slots, reservation, dur);
 
 				// on room overlapping
-				if (!ro)
-					score++;
-				else
-					score *= Model.Criteria.Weights[0];
-
 				Criteria[ci + 0] = !ro;
 				
 				var r = Configuration.GetRoomById(room);
 				// does current room have enough seats
 				Criteria[ci + 1] = Model.Criteria.IsSeatEnough(r, cc);
-				if (Criteria[ci + 1])
-					score++;
-				else
-                    score *= Model.Criteria.Weights[1];
 
 				// does current room have computers if they are required
 				Criteria[ci + 2] = Model.Criteria.IsComputerEnough(r, cc);
-				if (Criteria[ci + 2])
-					score++;
-				else
-                    score *= Model.Criteria.Weights[2];
 
 				var total_overlap = Model.Criteria.IsOverlappedProfStudentGrp(Slots, cc, numberOfRooms, day * daySize + time);
 
 				// professors have no overlapping classes?
-				if (!total_overlap[0])
-					score++;
-				else
-                    score *= Model.Criteria.Weights[3];
 				Criteria[ci + 3] = !total_overlap[0];
 
 				// student groups has no overlapping classes?
-				if (!total_overlap[1])
-					score++;
-				else
-                    score *= Model.Criteria.Weights[4];
 				Criteria[ci + 4] = !total_overlap[1];
 
 				for(int i = 0; i < Objectives.Length; ++i) {
-					if (!Criteria[ci + i])
+					if (Criteria[ci + i])
+						++score;
+					else
 					{
-						var weight = Model.Criteria.Weights[i];
-                        Objectives[i] += weight > 0.1f ? 2 : 1;
-                    }
+                        score += Model.Criteria.Weights[i];
+                        Objectives[i] += Model.Criteria.Weights[i] > 0 ? 1 : 2;
+					}
 				}
 				ci += Model.Criteria.Weights.Length;
 			}
