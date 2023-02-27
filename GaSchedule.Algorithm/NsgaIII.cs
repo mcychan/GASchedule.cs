@@ -36,10 +36,10 @@ namespace GaSchedule.Algorithm
 		// Probability that mutation will occur
 		protected float _mutationProbability;
 
-        protected float _repeatRatio;
+		protected float _repeatRatio;
 
-        // Initializes NsgaIII
-        private NsgaIII(T prototype, int numberOfChromosomes)
+		// Initializes NsgaIII
+		private NsgaIII(T prototype, int numberOfChromosomes)
 		{
 			_prototype = prototype;
 			// there should be at least 2 chromosomes in population
@@ -61,7 +61,7 @@ namespace GaSchedule.Algorithm
 
 		protected sealed class ReferencePoint {
 			public int MemberSize { get; private set; }
-            public double[] Position { get; private set; }
+			public double[] Position { get; private set; }
 
 			private readonly Dictionary<int, double> potentialMembers;
 			
@@ -89,14 +89,14 @@ namespace GaSchedule.Algorithm
 				++MemberSize;
 			}
 
-            public void AddPotentialMember(int memberInd, double distance)
+			public void AddPotentialMember(int memberInd, double distance)
 			{
 				if(potentialMembers.TryGetValue(memberInd, out var currDistance))
 				{
-                    if (distance >= currDistance)
-                        return;
-                }
-                potentialMembers[memberInd] = distance;
+					if (distance >= currDistance)
+						return;
+				}
+				potentialMembers[memberInd] = distance;
 			}
 			
 			public int FindClosestMember()
@@ -332,15 +332,14 @@ namespace GaSchedule.Algorithm
 		}
 	
 
-		private static void NormalizeObjectives(List<T> pop, List<List<int> > fronts, List<double> intercepts)
+		private static void NormalizeObjectives(List<T> pop, List<List<int> > fronts, List<double> intercepts, List<double> idealPoint)
 		{		
 			foreach (var front in fronts) {
-				for (int i = 0; i < front.Count; ++i) {
-					int ind = front[i];
+				foreach (int ind in front) {
 					var convObjs = pop[ind].ConvertedObjectives;
 					for (int f = 0; f < convObjs.Length; ++f) {
-						if (Math.Abs(intercepts[f]) > 10e-10) // avoid the divide-by-zero error
-							convObjs[f] /= intercepts[f];
+						if (Math.Abs(intercepts[f] - idealPoint[f]) > 10e-10) // avoid the divide-by-zero error
+							convObjs[f] /= intercepts[f] - idealPoint[f];
 						else
 							convObjs[f] /= 10e-10;
 					}
@@ -373,17 +372,17 @@ namespace GaSchedule.Algorithm
 					if (indvRanks[i] > 0)
 						continue; // already assigned a rank
 
-					var be_dominated = false;
+					var beDominated = false;
 					for (int j = 0; j < curFront.Count; ++j) {
 						if (Dominate(pop[ curFront[j] ], pop[i]) ) { // i is dominated
-							be_dominated = true;
+							beDominated = true;
 							break;
 						}
 						else if ( Dominate(pop[i], pop[ curFront[j] ]) ) // i dominates a member in the current front
 							curFront.RemoveAt(j--);
 					}
 					
-					if (!be_dominated)
+					if (!beDominated)
 						curFront.Add(i);
 				}
 
@@ -411,13 +410,16 @@ namespace GaSchedule.Algorithm
 		}
 	
 
-		private static void TranslateObjectives(List<T> pop, List<List<int> > fronts)
+		private static List<double> TranslateObjectives(List<T> pop, List<List<int> > fronts)
 		{
+			var idealPoint = new List<double>();
 			var numObj = pop[0].Objectives.Length;
 			for (int f = 0; f < numObj; ++f) {
 				var minf = Double.MaxValue;
 				foreach (var frontIndv in fronts[0]) // min values must appear in the first front
 					minf = Math.Min(minf, pop[frontIndv].Objectives[f]);
+					
+				idealPoint.Add(minf);
 
 				foreach (var front in fronts) {
 					foreach (var ind in front) {				
@@ -427,6 +429,8 @@ namespace GaSchedule.Algorithm
 					}
 				}
 			}
+			
+			return idealPoint;
 		}
 
 		protected List<T> Selection(List<T> cur, List<ReferencePoint> rps) {
@@ -452,14 +456,14 @@ namespace GaSchedule.Algorithm
 			if (next.Count == _populationSize)
 				return next.OrderByDescending(chromosome => chromosome.Fitness).ToList();
 
-            // ---------- Step 14 / Algorithm 2 ----------
-            TranslateObjectives(cur, fronts);
+			// ---------- Step 14 / Algorithm 2 ----------
+			var idealPoint = TranslateObjectives(cur, fronts);
 			
 			var extremePoints = FindExtremePoints(cur, fronts);
 
 			var intercepts = ConstructHyperplane(cur, extremePoints);
 
-            NormalizeObjectives(cur, fronts, intercepts);
+			NormalizeObjectives(cur, fronts, intercepts, idealPoint);
 
 			// ---------- Step 15 / Algorithm 3, Step 16 ----------
 			Associate(rps, cur, fronts);
@@ -570,11 +574,11 @@ namespace GaSchedule.Algorithm
 				/******************* selection *****************/
 				var rps = new List<ReferencePoint>();			
 				ReferencePoint.GenerateReferencePoints(rps, Criteria.Weights.Length, objDivision);				
-                pop[next] = Selection(pop[cur], rps);
-                _best = Dominate(pop[next][0], pop[cur][0]) ? pop[next][0] : pop[cur][0];
+				pop[next] = Selection(pop[cur], rps);
+				_best = Dominate(pop[next][0], pop[cur][0]) ? pop[next][0] : pop[cur][0];
 
-                /******************* comparison *****************/
-                if (currentGeneration > 0)
+				/******************* comparison *****************/
+				if (currentGeneration > 0)
 					lastBestFit = best.Fitness;
 				
 				(cur, next) = (next, cur);
