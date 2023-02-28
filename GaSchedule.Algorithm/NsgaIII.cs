@@ -37,6 +37,8 @@ namespace GaSchedule.Algorithm
 		protected float _mutationProbability;
 
 		protected float _repeatRatio;
+		
+		private List<int> _objDivision;
 
 		// Initializes NsgaIII
 		private NsgaIII(T prototype, int numberOfChromosomes)
@@ -54,6 +56,14 @@ namespace GaSchedule.Algorithm
 			_numberOfCrossoverPoints = numberOfCrossoverPoints;
 			_crossoverProbability = crossoverProbability;
 			_mutationProbability = mutationProbability;
+			
+			_objDivision = new List<int>();
+			if(Criteria.Weights.Length < 8)
+				_objDivision.Add(6);
+			else {
+				_objDivision.Add(3);
+				_objDivision.Add(2);
+			}
 		}
 
 		// Returns pointer to best chromosomes in population
@@ -175,7 +185,7 @@ namespace GaSchedule.Algorithm
 		private static void Associate(List<ReferencePoint> rps, List<T> pop, List<List<int> > fronts) {
 			for (int t = 0; t < fronts.Count; ++t) {
 				foreach (var memberInd in fronts[t]) {
-					var minRp = rps.Count;
+					var minRp = rps.Count - 1;
 					var minDist = Double.MaxValue;
 					for (int r = 0; r < rps.Count; ++r) {
 						var d = PerpendicularDistance(rps[r].Position, pop[memberInd].ConvertedObjectives);
@@ -226,7 +236,7 @@ namespace GaSchedule.Algorithm
 		{
 			var max_ratio = -Double.MaxValue;
 			for (int f = 0; f < objs.Length; ++f) {
-				var w = Math.Max(weight[f], 0.00001);
+				var w = Math.Max(weight[f], 1e-6);
 				max_ratio = Math.Max(max_ratio, objs[f] / w);
 			}
 			return max_ratio;
@@ -238,7 +248,7 @@ namespace GaSchedule.Algorithm
 			
 			var exp = new List<int>();
 			for (int f = 0; f < numObj; ++f) {
-				var w = Enumerable.Repeat(0.000001, numObj).ToArray();
+				var w = Enumerable.Repeat(1e-6, numObj).ToArray();
 				w[f] = 1.0;
 
 				var minASF = Double.MaxValue;
@@ -513,20 +523,19 @@ namespace GaSchedule.Algorithm
 			else if (_mutationProbability < 30)
 			_mutationProbability += 1.0f;
 		}
+		
+		protected List<T> Selection(List<T> population)
+		{
+			var rps = new List<ReferencePoint>();			
+			ReferencePoint.GenerateReferencePoints(rps, Criteria.Weights.Length, _objDivision);				
+			return Selection(population, rps);
+		}
 
 		// Starts and executes algorithm
 		public virtual void Run(int maxRepeat = 9999, double minFitness = 0.999)
 		{
 			if (_prototype == null)
-				return;
-			
-			var objDivision = new List<int>();
-			if(Criteria.Weights.Length < 8)
-				objDivision.Add(6);
-			else {
-				objDivision.Add(3);
-				objDivision.Add(2);
-			}
+				return;			
 
 			var pop = new List<T>[2];
 			pop[0] = new List<T>();
@@ -571,10 +580,8 @@ namespace GaSchedule.Algorithm
 
 				pop[cur].AddRange(offspring);
 
-				/******************* selection *****************/
-				var rps = new List<ReferencePoint>();			
-				ReferencePoint.GenerateReferencePoints(rps, Criteria.Weights.Length, objDivision);				
-				pop[next] = Selection(pop[cur], rps);
+				/******************* selection *****************/				
+				pop[next] = Selection(pop[cur]);
 				_best = Dominate(pop[next][0], pop[cur][0]) ? pop[next][0] : pop[cur][0];
 
 				/******************* comparison *****************/
