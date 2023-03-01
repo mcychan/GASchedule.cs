@@ -206,7 +206,7 @@ namespace GaSchedule.Algorithm
 
 			// Current generation
 			int currentGeneration = 0;
-			int repeat = 0;
+			int bestNotEnhance = 0;
 			double lastBestFit = 0.0;
 
 			for (; ; )
@@ -223,12 +223,14 @@ namespace GaSchedule.Algorithm
 
 					double difference = Math.Abs(best.Fitness - lastBestFit);
 					if (difference <= 0.0000001)
-						++repeat;
-					else
-						repeat = 0;
+						++bestNotEnhance;
+					else {
+						lastBestFit = best.Fitness;
+						bestNotEnhance = 0;
+					}
 
-					_repeatRatio = repeat * 100.0f / maxRepeat;
-					if (repeat > (maxRepeat / 100))
+					_repeatRatio = bestNotEnhance * 100.0f / maxRepeat;
+					if (bestNotEnhance > (maxRepeat / 100))
 						Reform();
 
 				}
@@ -259,7 +261,6 @@ namespace GaSchedule.Algorithm
 					totalChromosome.AddRange(_chromosomes);
 					var newBestFront = NonDominatedSorting(totalChromosome);
 					_chromosomes = Selection(newBestFront, totalChromosome).ToArray();
-					lastBestFit = best.Fitness;
 				}
 				++currentGeneration;
 			}

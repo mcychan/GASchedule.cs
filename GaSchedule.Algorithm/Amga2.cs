@@ -494,7 +494,7 @@ namespace GaSchedule.Algorithm
 
 			// Current generation
 			int currentGeneration = 0;
-			int repeat = 0;
+			int bestNotEnhance = 0;
 			double lastBestFit = 0.0;
 
 			for (; ; )
@@ -514,13 +514,14 @@ namespace GaSchedule.Algorithm
 
 					var difference = Math.Abs(best.Fitness - lastBestFit);
 					if (difference <= 0.0000001)
-						++repeat;
-					else
-						repeat = 0;
+						++bestNotEnhance;
+					else {
+						lastBestFit = best.Fitness;
+						bestNotEnhance = 0;
+					}
 
-					if (repeat > (maxRepeat / 100))
+					if (bestNotEnhance > (maxRepeat / 100))
 						Reform();
-					lastBestFit = best.Fitness;
 				}
 
 				CreateParentPopulation();
