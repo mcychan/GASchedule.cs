@@ -27,9 +27,9 @@ namespace GaSchedule.Algorithm
 		private double Ex(T chromosome)
 		{
 			double numerator = 0.0, denominator = 0.0;
-			for (int f = 0; f < chromosome.getObjectives().length; ++f) {
-				numerator += chromosome.objectives[f] - _best.objectives[f];
-				denominator += _worst.objectives[f] - _best.objectives[f];
+			for (int f = 0; f < chromosome.Objectives.Length; ++f) {
+				numerator += chromosome.Objectives[f] - _best.Objectives[f];
+				denominator += _worst.Objectives[f] - _best.Objectives[f];
 			}
 			return (numerator + 1) / (denominator + 1);
 		}
