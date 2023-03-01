@@ -16,6 +16,8 @@ namespace GaSchedule.Algorithm
 	/****************** Evolutionary multi-objective seagull optimization algorithm (EMoSOA) **********************/
 	public class APNsgaIII<T> : NsgaIII<T> where T : Chromosome<T>
 	{
+		private int _max_iterations = 5000;
+
 		// Worst of chromosomes
 		protected T _worst;
 
@@ -47,7 +49,7 @@ namespace GaSchedule.Algorithm
 				var exValue = Ex(population[i]);
 				
 				if(exValue > .5 && i > rank) {
-					population.RemoveAt(i);				
+					population.RemoveAt(i);
 					if(--N <= _populationSize)
 						break;
 				}
@@ -89,7 +91,7 @@ namespace GaSchedule.Algorithm
 		public override void Run(int maxRepeat = 9999, double minFitness = 0.999)
 		{
 			if (_prototype == null)
-				return;			
+				return;
 
 			var pop = new List<T>[2];
 			pop[0] = new List<T>();
@@ -138,7 +140,7 @@ namespace GaSchedule.Algorithm
 
 				pop[cur].AddRange(offspring);
 
-				/******************* selection *****************/				
+				/******************* selection *****************/
 				pop[next] = Selection(pop[cur]);
 				_best = Dominate(pop[next][0], pop[cur][0]) ? pop[next][0] : pop[cur][0];
 
