@@ -100,7 +100,7 @@ namespace GaSchedule.Model
 			var n = Copy(this, true);
 
 			// number of classes
-			int size = Classes.Count;
+			var size = Classes.Count;
 
 			var cp = new bool[size];
 
@@ -159,13 +159,13 @@ namespace GaSchedule.Model
 		public Schedule Crossover(Schedule parent, Schedule r1, Schedule r2, Schedule r3, float etaCross, float crossoverProbability)
 		{
 			// number of classes
-			int size = Classes.Count;
-			int jrand = Configuration.Rand(size);
+			var size = Classes.Count;
+			var jrand = Configuration.Rand(size);
 			
 			// new chromosome object, copy chromosome setup
 			var n = Copy(this, true);
 			
-			int nr = Configuration.NumberOfRooms;
+			var nr = Configuration.NumberOfRooms;
 			for (int i = 0; i < size; ++i)
 			{
 				// check probability of crossover operation
@@ -222,8 +222,8 @@ namespace GaSchedule.Model
 
 		private void Repair(CourseClass cc1, int reservation1_index, Reservation reservation2)
 		{
-			int dur = cc1.Duration;
-			int nr = Configuration.NumberOfRooms;
+			var dur = cc1.Duration;
+			var nr = Configuration.NumberOfRooms;
 
 			for (int j = dur - 1; j >= 0; --j)
 			{
@@ -258,7 +258,7 @@ namespace GaSchedule.Model
 				return;
 
 			// number of classes
-			int numberOfClasses = Classes.Count;
+			var numberOfClasses = Classes.Count;
 
 			// move selected number of classes at random position
 			for (int i = mutationSize; i > 0; --i)
@@ -324,8 +324,8 @@ namespace GaSchedule.Model
 						++score;
 					else
 					{
-                        score += Model.Criteria.Weights[i];
-                        Objectives[i] += Model.Criteria.Weights[i] > 0 ? 1 : 2;
+						score += Model.Criteria.Weights[i];
+						Objectives[i] += Model.Criteria.Weights[i] > 0 ? 1 : 2;
 					}
 				}
 				ci += Model.Criteria.Weights.Length;
@@ -402,8 +402,7 @@ namespace GaSchedule.Model
 		public double[] ConvertedObjectives { get; private set; }
 		
 		public void ResizeConvertedObjectives(int numObj) {
-			if(ConvertedObjectives == null || ConvertedObjectives.Length < numObj)
-				ConvertedObjectives = new double[numObj];
+			ConvertedObjectives = new double[numObj];
 		}
 		
 		public double[] Objectives { get; private set; }
