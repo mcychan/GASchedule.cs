@@ -61,18 +61,18 @@ namespace GaSchedule.Algorithm
 			for(int i = 0; i < nTmp; ++i) {
 				var chromosome = population[i];
 				var tumor = chromosome.Clone();
-				tumor.mutation(_mutationSize, _mutationProbability);
+				tumor.Mutation(_mutationSize, _mutationProbability);
 				
 				_worst = population[population.Count - 1];
-				if(dominate(tumor, chromosome)) {
+				if(Dominate(tumor, chromosome)) {
 					population[i] = tumor;
-					if(dominate(tumor, _best))
+					if(Dominate(tumor, _best))
 						_best = tumor;
 				}
 				else {
 					if(bestNotEnhance >= 15 && N < nMax) {
 						++N;
-						if(dominate(_worst, tumor)) {
+						if(Dominate(_worst, tumor)) {
 							population.Add(tumor);
 							_worst = tumor;
 						}
