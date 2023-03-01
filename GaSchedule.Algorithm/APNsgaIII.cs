@@ -77,7 +77,7 @@ namespace GaSchedule.Algorithm
 							_worst = tumor;
 						}
 						else
-							population.Insert(population.size() - 1, tumor);
+							population.Insert(population.Count - 1, tumor);
 					}
 				}				
 			}
