@@ -96,6 +96,7 @@ namespace GaSchedule.Algorithm
 			var pop = new List<T>[2];
 			pop[0] = new List<T>();
 			Initialize(pop[0]);
+			var nMax = (int) (1.5 * _populationSize);
 
 			// Current generation
 			int currentGeneration = 0;
