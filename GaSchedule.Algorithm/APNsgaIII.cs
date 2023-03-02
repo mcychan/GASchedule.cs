@@ -133,7 +133,7 @@ namespace GaSchedule.Algorithm
 				}
 
 				/******************* crossover *****************/
-				var offspring = Replacement(pop[cur]);
+				var offspring = Crossing(pop[cur]);
 
 				/******************* mutation *****************/
 				foreach (var child in offspring)
@@ -141,8 +141,8 @@ namespace GaSchedule.Algorithm
 
 				pop[cur].AddRange(offspring);
 
-				/******************* selection *****************/
-				pop[next] = Selection(pop[cur]);
+				/******************* replacement *****************/
+				pop[next] = Replacement(pop[cur]);
 				_best = Dominate(pop[next][0], pop[cur][0]) ? pop[next][0] : pop[cur][0];
 
 				DualCtrlStrategy(pop[next], bestNotEnhance, nMax);

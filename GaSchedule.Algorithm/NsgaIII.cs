@@ -495,7 +495,7 @@ namespace GaSchedule.Algorithm
 			return next.OrderByDescending(chromosome => chromosome.Fitness).ToList();
 		}
 
-		protected virtual List<T> Replacement(List<T> population)
+		protected virtual List<T> Crossing(List<T> population)
 		{
 			var offspring = new List<T>();
 			for (int i = 0; i < _populationSize; i += 2) {
@@ -524,7 +524,7 @@ namespace GaSchedule.Algorithm
 			_mutationProbability += 1.0f;
 		}
 		
-		protected List<T> Selection(List<T> population)
+		protected List<T> Replacement(List<T> population)
 		{
 			var rps = new List<ReferencePoint>();			
 			ReferencePoint.GenerateReferencePoints(rps, Criteria.Weights.Length, _objDivision);				
@@ -574,7 +574,7 @@ namespace GaSchedule.Algorithm
 				}
 
 				/******************* crossover *****************/
-				var offspring = Replacement(pop[cur]);
+				var offspring = Crossing(pop[cur]);
 
 				/******************* mutation *****************/
 				foreach (var child in offspring)
@@ -582,8 +582,8 @@ namespace GaSchedule.Algorithm
 
 				pop[cur].AddRange(offspring);
 
-				/******************* selection *****************/				
-				pop[next] = Selection(pop[cur]);
+				/******************* replacement *****************/				
+				pop[next] = Replacement(pop[cur]);
 				_best = Dominate(pop[next][0], pop[cur][0]) ? pop[next][0] : pop[cur][0];
 
 				
