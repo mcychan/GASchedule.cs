@@ -81,19 +81,6 @@ namespace GaSchedule.Algorithm
 				potentialMembers = new Dictionary<int, double>();
 			}
 			
-			static void GenerateRecursive(List<ReferencePoint> rps, ReferencePoint pt, int numObjs, int left, int total, int element) {
-				if (element == numObjs - 1) {
-					pt.Position[element] = left * 1.0 / total;
-					rps.Add(pt);
-				}
-				else {
-					for (int i = 0; i <= left; ++i) {
-						pt.Position[element] = i * 1.0 / total;
-						GenerateRecursive(rps, pt, numObjs, left - i, total, element + 1);
-					}
-				}
-			}
-			
 			public void AddMember()
 			{
 				++MemberSize;
@@ -143,6 +130,19 @@ namespace GaSchedule.Algorithm
 			}
 
 			public static void GenerateReferencePoints(List<ReferencePoint> rps, int M, List<int> p) {
+				static void GenerateRecursive(List<ReferencePoint> rps, ReferencePoint pt, int numObjs, int left, int total, int element) {
+					if (element == numObjs - 1) {
+						pt.Position[element] = left * 1.0 / total;
+						rps.Add(pt);
+					}
+					else {
+						for (int i = 0; i <= left; ++i) {
+							pt.Position[element] = i * 1.0 / total;
+							GenerateRecursive(rps, pt, numObjs, left - i, total, element + 1);
+						}
+					}
+				}
+				
 				var pt = new ReferencePoint(M);
 				GenerateRecursive(rps, pt, M, p[0], p[0], 0);
 
@@ -234,12 +234,12 @@ namespace GaSchedule.Algorithm
 		// ----------------------------------------------------------------------
 		private static double ASF(double[] objs, double[] weight)
 		{
-			var max_ratio = -Double.MaxValue;
+			var maxRatio = -Double.MaxValue;
 			for (int f = 0; f < objs.Length; ++f) {
 				var w = Math.Max(weight[f], 1e-6);
-				max_ratio = Math.Max(max_ratio, objs[f] / w);
+				maxRatio = Math.Max(maxRatio, objs[f] / w);
 			}
-			return max_ratio;
+			return maxRatio;
 		}
 	
 
