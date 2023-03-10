@@ -98,16 +98,7 @@ namespace GaSchedule.Algorithm
 			
 			public int FindClosestMember()
 			{
-				var minDist = Double.MaxValue;
-				int minIndv = -1;
-				foreach (var entry in potentialMembers) {
-					if (entry.Value < minDist) {
-						minDist = entry.Value;
-						minIndv = entry.Key;
-					}
-				}
-
-				return minIndv;
+				return potentialMembers.Where(e => e.Value == potentialMembers.Min(e2 => e2.Value)).First();
 			}
 			
 			public bool HasPotentialMember()
