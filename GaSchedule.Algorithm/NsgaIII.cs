@@ -464,7 +464,7 @@ namespace GaSchedule.Algorithm
 
 			// ---------- Steps 9-10 in Algorithm 1 ----------
 			if (next.Count == _populationSize)
-				return next.OrderByDescending(chromosome => chromosome.Fitness).ToList();
+				return next;
 
 			// ---------- Step 14 / Algorithm 2 ----------
 			var idealPoint = TranslateObjectives(cur, fronts);
@@ -492,7 +492,7 @@ namespace GaSchedule.Algorithm
 				}
 			}
 
-			return next.OrderByDescending(chromosome => chromosome.Fitness).ToList();
+			return next;
 		}
 
 		protected virtual List<T> Crossing(List<T> population)
