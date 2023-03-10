@@ -98,7 +98,7 @@ namespace GaSchedule.Algorithm
 			
 			public int FindClosestMember()
 			{
-				return potentialMembers.Where(e => e.Value == potentialMembers.Min(e2 => e2.Value)).First();
+				return potentialMembers.Where(e => e.Value == potentialMembers.Min(e2 => e2.Value)).First().Key;
 			}
 			
 			public bool HasPotentialMember()
