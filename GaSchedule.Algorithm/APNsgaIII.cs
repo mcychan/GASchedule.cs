@@ -85,9 +85,13 @@ namespace GaSchedule.Algorithm
 			}
 			PopDec(population);
 		}
+		
+		protected override List<T> Replacement(List<T> population)
+		{
+			return base.Replacement(population).OrderByDescending(chromosome => chromosome.Fitness).ToList();
+		}
 
-
-				// Starts and executes algorithm
+		// Starts and executes algorithm
 		public override void Run(int maxRepeat = 9999, double minFitness = 0.999)
 		{
 			if (_prototype == null)
