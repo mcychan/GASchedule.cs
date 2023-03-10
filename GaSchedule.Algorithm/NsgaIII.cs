@@ -515,7 +515,7 @@ namespace GaSchedule.Algorithm
 			_mutationProbability += 1.0f;
 		}
 		
-		protected List<T> Replacement(List<T> population)
+		protected virtual List<T> Replacement(List<T> population)
 		{
 			var rps = new List<ReferencePoint>();			
 			ReferencePoint.GenerateReferencePoints(rps, Criteria.Weights.Length, _objDivision);				
