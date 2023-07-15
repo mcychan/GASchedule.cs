@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GaSchedule.Model
 {
@@ -85,6 +86,32 @@ namespace GaSchedule.Model
 			}
 
 			newChromosome.CalculateFitness();
+			return newChromosome;
+		}
+		
+		public Schedule MakeEmptyFromPrototype(List<int> bounds)
+		{
+			// make new chromosome, copy chromosome setup
+			var newChromosome = Copy(this, true);
+
+            var c = Configuration.CourseClasses;
+            int nr = Configuration.NumberOfRooms;
+			foreach (var courseClass in c)
+			{
+				// determine random position of class
+				int dur = courseClass.Duration;
+
+				if (bounds != null)
+				{
+					bounds.Add(Constant.DAYS_NUM - 1);
+					bounds.Add(nr - 1);
+					bounds.Add(Constant.DAY_HOURS - 1 - dur);
+				}
+
+				// insert in class table of chromosome
+				newChromosome.Classes[courseClass] = -1;
+			}
+
 			return newChromosome;
 		}
 
@@ -225,11 +252,13 @@ namespace GaSchedule.Model
 			var dur = cc1.Duration;
 			var nr = Configuration.NumberOfRooms;
 
-			for (int j = dur - 1; j >= 0; --j)
-			{
-				// remove class hour from current time-space slot
-				var cl = Slots[reservation1_index + j];
-				cl.RemoveAll(cc => cc == cc1);
+			if(reservation1_index > -1) {
+				for (int j = dur - 1; j >= 0; --j)
+				{
+					// remove class hour from current time-space slot
+					var cl = Slots[reservation1_index + j];
+					cl.RemoveAll(cc => cc == cc1);
+				}
 			}
 
 			if (reservation2 == null)
@@ -408,9 +437,23 @@ namespace GaSchedule.Model
 		public double[] Objectives { get; private set; }
 
 		public Schedule Clone()
-		{
+        {
 			return Copy(this, false);
-		}
-		
-	}
+        }
+
+        public bool Dominates(Schedule other)
+        {
+            var better = false;
+            for (int f = 0; f < Objectives.Length; ++f)
+            {
+                if (Objectives[f] > other.Objectives[f])
+                    return false;
+
+                if (Objectives[f] < other.Objectives[f])
+                    better = true;
+            }
+            return better;
+        }
+
+    }
 }

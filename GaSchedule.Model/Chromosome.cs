@@ -5,6 +5,8 @@ namespace GaSchedule.Model
     public interface Chromosome<T> where T : Chromosome<T>
     {
         public T MakeNewFromPrototype(List<float> positions = null);
+		
+		public T MakeEmptyFromPrototype(List<int> bounds = null);
 
         public float Fitness { get; }
 
@@ -33,6 +35,7 @@ namespace GaSchedule.Model
 		public void ResizeConvertedObjectives(int numObj);
     
 		public T Clone();
+        public bool Dominates(T other);
 
     }
 }
