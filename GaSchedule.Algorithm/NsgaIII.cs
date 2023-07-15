@@ -348,18 +348,6 @@ namespace GaSchedule.Algorithm
 			}
 		}
 	
-		protected bool Dominate(T left, T right) {
-			var better = false;
-			for (int f = 0; f < left.Objectives.Length; ++f) {
-				if (left.Objectives[f] > right.Objectives[f])
-					return false;
-				
-				if (left.Objectives[f] < right.Objectives[f])
-					better = true;
-			}
-			return better;
-		}
-	
 		protected List<List<int> > NondominatedSort(List<T> pop) {
 			var fronts = new List<List<int> >();
 			int numAssignedIndividuals = 0;
@@ -375,11 +363,11 @@ namespace GaSchedule.Algorithm
 
 					var beDominated = false;
 					for (int j = 0; j < curFront.Count; ++j) {
-						if (Dominate(pop[ curFront[j] ], pop[i]) ) { // i is dominated
+						if (pop[curFront[j]].Dominates( pop[i]) ) { // i is dominated
 							beDominated = true;
 							break;
 						}
-						else if ( Dominate(pop[i], pop[ curFront[j] ]) ) // i dominates a member in the current front
+						else if (pop[i].Dominates( pop[ curFront[j] ]) ) // i dominates a member in the current front
 							curFront.RemoveAt(j--);
 					}
 					
@@ -575,7 +563,7 @@ namespace GaSchedule.Algorithm
 
 				/******************* replacement *****************/				
 				pop[next] = Replacement(pop[cur]);
-				_best = Dominate(pop[next][0], pop[cur][0]) ? pop[next][0] : pop[cur][0];
+				_best = pop[next][0].Dominates( pop[cur][0]) ? pop[next][0] : pop[cur][0];
 
 				
 				(cur, next) = (next, cur);

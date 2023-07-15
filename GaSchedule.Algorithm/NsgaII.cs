@@ -57,7 +57,7 @@ namespace GaSchedule.Algorithm
 		}
 
 		// Returns pointer to best chromosomes in population
-		public T Result => (_chromosomes == null) ? default(T) : _chromosomes[0];
+		public virtual T Result => (_chromosomes == null) ? default(T) : _chromosomes[0];
 
 		/************** non-dominated sorting function ***************************/
 		protected List<ISet<int> > NonDominatedSorting(List<T> totalChromosome)

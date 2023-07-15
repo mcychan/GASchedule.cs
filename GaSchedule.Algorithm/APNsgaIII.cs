@@ -66,15 +66,15 @@ namespace GaSchedule.Algorithm
 				tumor.Mutation(_mutationSize, _mutationProbability);
 				
 				_worst = population[population.Count - 1];
-				if(Dominate(tumor, chromosome)) {
+				if(tumor.Dominates(chromosome)) {
 					population[i] = tumor;
-					if(Dominate(tumor, _best))
+					if(tumor.Dominates(_best))
 						_best = tumor;
 				}
 				else {
 					if(bestNotEnhance >= 15 && N < nMax) {
 						++N;
-						if(Dominate(_worst, tumor)) {
+						if(_worst.Dominates(tumor)) {
 							population.Add(tumor);
 							_worst = tumor;
 						}
@@ -147,7 +147,7 @@ namespace GaSchedule.Algorithm
 
 				/******************* replacement *****************/
 				pop[next] = Replacement(pop[cur]);
-				_best = Dominate(pop[next][0], pop[cur][0]) ? pop[next][0] : pop[cur][0];
+				_best = pop[next][0].Dominates(pop[cur][0]) ? pop[next][0] : pop[cur][0];
 
 				DualCtrlStrategy(pop[next], bestNotEnhance, nMax);
 				
