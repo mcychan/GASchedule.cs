@@ -21,7 +21,7 @@ namespace GaSchedule.Algorithm
 		private float[] _P; // observed classical population
 
 		private float[,] _bounds;
-		private int _chromlen;
+		private int _chromlen, _catastrophe;
 
 		private T _bestval;
 		private float[] _best;
@@ -37,7 +37,8 @@ namespace GaSchedule.Algorithm
         protected override void Initialize(List<T> population)
 		{		
 			_chromlen = 0;
-			_bestval = default(T);
+            _catastrophe = (int) _mutationProbability;
+            _bestval = default;
 			
 			List<int> bounds = new();
 			for (int i = 0; i < _populationSize; ++i) {		
@@ -95,7 +96,7 @@ namespace GaSchedule.Algorithm
 				var positions = CopyOfRange(_P, start, start + _chromlen);
 				T chromosome = _prototype.MakeEmptyFromPrototype(null);
 				chromosome.UpdatePositions(positions);
-				if((Configuration.Rand(100) <= _mutationProbability && i > _mutationProbability) || chromosome.Fitness > _chromosomes[i].Fitness) {
+				if((Configuration.Rand(100) <= _catastrophe && i > _catastrophe) || chromosome.Fitness > _chromosomes[i].Fitness) {
 					_chromosomes[i] = chromosome;
 					++_updated;
 				}
