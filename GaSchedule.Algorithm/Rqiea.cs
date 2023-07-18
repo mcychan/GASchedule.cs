@@ -227,7 +227,7 @@ namespace GaSchedule.Algorithm
 			Storebest();
 			population = _chromosomes.ToList();
 
-            int bestNotEnhance = 0;
+			int bestNotEnhance = 0;
 			double lastBestFit = 0.0;
 
 			while(_currentGeneration < _max_iterations) {				
