@@ -31,14 +31,14 @@ namespace GaSchedule.Algorithm
 
 		// Initializes Real observation QIEA
 		public Rqiea(T prototype, int numberOfCrossoverPoints = 2, int mutationSize = 2, float crossoverProbability = 80, float mutationProbability = 3) : base(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability)
-        {
-        }
+		{
+		}
 
-        protected override void Initialize(List<T> population)
+		protected override void Initialize(List<T> population)
 		{		
 			_chromlen = 0;
-            _catastrophe = (int) _mutationProbability;
-            _bestval = default;
+			_catastrophe = (int) _mutationProbability;
+			_bestval = default;
 			
 			List<int> bounds = new();
 			for (int i = 0; i < _populationSize; ++i) {		
@@ -127,10 +127,10 @@ namespace GaSchedule.Algorithm
 		}
 		
 		private void Evaluate() {
-			// not implemented			
+			// not implemented
 		}
 		
-		private float Sign(double x) {
+		private static float Sign(double x) {
 			if (x > 0)
 				return 1;
 			if (x < 0)
@@ -138,7 +138,7 @@ namespace GaSchedule.Algorithm
 			return 0;
 		}
 		
-		private float Lut(float alpha, float beta, float alphabest, float betabest) {
+		private static float Lut(float alpha, float beta, float alphabest, float betabest) {
 			var M_PI_2 = Math.PI / 2;
 			var eps = 1e-5f;
 			var xi = (float) Math.Atan(beta / alpha);
@@ -252,12 +252,12 @@ namespace GaSchedule.Algorithm
 						Reform();
 				}
 
-                /******************* crossover *****************/
-                var offspring = Replacement(population);
+				/******************* crossover *****************/
+				var offspring = Replacement(population);
 
-                /******************* mutation *****************/
-                foreach (var child in offspring)
-                    child.Mutation(_mutationSize, _mutationProbability);
+				/******************* mutation *****************/
+				foreach (var child in offspring)
+					child.Mutation(_mutationSize, _mutationProbability);
 				
 				var totalChromosome = new List<T>(population);
 				totalChromosome.AddRange(offspring);
@@ -267,16 +267,16 @@ namespace GaSchedule.Algorithm
 				
 				/******************* selection *****************/
 				population = Selection(front, totalChromosome);
-                _populationSize = population.Count;
+				_populationSize = population.Count;
 
-                /******************* comparison *****************/
-                if (_currentGeneration > 0) {
+				/******************* comparison *****************/
+				if (_currentGeneration > 0) {
 					totalChromosome = new List<T>(population);
 					totalChromosome.AddRange(_chromosomes);
-                    var newBestFront = NonDominatedSorting(totalChromosome);
-                    _chromosomes = Selection(newBestFront, totalChromosome).ToArray();
+					var newBestFront = NonDominatedSorting(totalChromosome);
+					_chromosomes = Selection(newBestFront, totalChromosome).ToArray();
 
-                    for (int i = 0; i < _populationSize; ++i) {
+					for (int i = 0; i < _populationSize; ++i) {
 						var positions = new float[_chromlen];
 						int start = i * _chromlen;
 						_chromosomes[i].ExtractPositions(positions);
