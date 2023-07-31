@@ -35,14 +35,14 @@ namespace GaSchedule.Algorithm
 		}
 
 		protected override void Initialize(List<T> population)
-		{		
+		{
 			_chromlen = 0;
 			_catastrophe = (int) _mutationProbability;
 			_bestval = default;
 			
 			List<int> bounds = new();
-			for (int i = 0; i < _populationSize; ++i) {		
-				if(i < 1) {				
+			for (int i = 0; i < _populationSize; ++i) {
+				if(i < 1) {
 					// initialize new population with chromosomes randomly built using prototype
 					population.Add(_prototype.MakeEmptyFromPrototype(bounds));
 					
@@ -89,9 +89,9 @@ namespace GaSchedule.Algorithm
 						_P[pij] = _Q[qij + 1] * _Q[qij + 1];
 					
 					_P[pij] *= _bounds[j, 1] - _bounds[j, 0];
-					_P[pij] += _bounds[j, 0];				
+					_P[pij] += _bounds[j, 0];
 				}
-				
+
 				int start = i * _chromlen;
 				var positions = CopyOfRange(_P, start, start + _chromlen);
 				T chromosome = _prototype.MakeEmptyFromPrototype(null);
@@ -141,8 +141,8 @@ namespace GaSchedule.Algorithm
 		private static float Lut(float alpha, float beta, float alphabest, float betabest) {
 			var M_PI_2 = Math.PI / 2;
 			var eps = 1e-5f;
-			var xi = (float) Math.Atan(beta / alpha);
-			var xi_b = (float) Math.Atan(betabest / alphabest);
+			var xi = (float) Math.Atan(beta / (alpha + eps));
+			var xi_b = (float) Math.Atan(betabest / (alphabest + eps));
 			if (Math.Abs(xi_b) < eps || Math.Abs(xi) < eps // xi_b or xi = 0
 					|| Math.Abs(xi_b - M_PI_2) < eps || Math.Abs(xi_b - M_PI_2) < eps // xi_b or xi = pi/2
 					|| Math.Abs(xi_b + M_PI_2) < eps || Math.Abs(xi_b + M_PI_2) < eps) // xi_b or xi = -pi/2
@@ -293,7 +293,7 @@ namespace GaSchedule.Algorithm
 			}
 		}
 
-		
+
 		public override string ToString()
 		{
 			return "Real observation QIEA (rQIEA)";
