@@ -12,27 +12,28 @@ using GaSchedule.Model;
 
 namespace GaSchedule.Algorithm
 {
-	/****************** Real observation QIEA (rQIEA) **********************/
-	public class Rqiea<T> : NsgaII<T> where T : Chromosome<T>
+    /****************** Real observation QIEA (rQIEA) **********************/
+    public class Rqiea<T> : NsgaIII<T> where T : Chromosome<T>
 	{
 		private int _currentGeneration = 0, _max_iterations = 5000;
-		
+		private int _maxRepeat = 15;
+
 		private float[] _Q; // quantum population
 		private float[] _P; // observed classical population
 
 		private float[,] _bounds;
 		private int _chromlen, _catastrophe;
 
-		private T _bestval;
-		private float[] _best;
+		private float[] _bestval;
 		private float[,] _bestq;
 		
-		private int _updated = 0;
+		private int _bestNotEnhance = 0, _updated = 0;
 
-		// Initializes Real observation QIEA
+		// Initializes Adaptive Population NSGA-III with Dual Control Strategy
 		public Rqiea(T prototype, int numberOfCrossoverPoints = 2, int mutationSize = 2, float crossoverProbability = 80, float mutationProbability = 3) : base(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability)
 		{
-		}
+            _maxRepeat = Math.Min(_maxRepeat, _max_iterations / 2);
+        }
 
 		protected override void Initialize(List<T> population)
 		{
@@ -50,7 +51,7 @@ namespace GaSchedule.Algorithm
 					_Q = new float[_populationSize * _chromlen * 2];
 					_P = new float[_populationSize * _chromlen];
 					_bounds = new float[_chromlen, 2];
-					_best = new float[_chromlen];
+                    _bestval = new float[_chromlen];
 					_bestq = new float[_chromlen, 2];
 				}
 				else
@@ -76,7 +77,7 @@ namespace GaSchedule.Algorithm
 			return dest;
 		}
 
-		private void Observe() {
+		private void Observe(List<T> population) {
 			_updated = 0;
 			for (int i = 0; i < _populationSize; ++i) {
 				for (int j = 0; j < _chromlen; ++j) {
@@ -96,27 +97,28 @@ namespace GaSchedule.Algorithm
 				var positions = CopyOfRange(_P, start, start + _chromlen);
 				T chromosome = _prototype.MakeEmptyFromPrototype(null);
 				chromosome.UpdatePositions(positions);
-				if((Configuration.Rand(100) <= _catastrophe && i > _catastrophe) || chromosome.Fitness > _chromosomes[i].Fitness) {
-					_chromosomes[i] = chromosome;
+				if(population[i].Fitness <= 0 ||
+						(Configuration.Rand(100) <= _catastrophe && population[i].Dominates(chromosome) )) {
+					population[i] = chromosome;
 					++_updated;
 				}
 				else {
-					_chromosomes[i].ExtractPositions(positions);
+					population[i].ExtractPositions(positions);
 					Array.Copy(positions, 0, _P, start, _chromlen);
 				}
 			}
 		}
 		
-		private void Storebest() {
+		private void Storebest(List<T> population) {
 			int i_best = 0;
 			for (int i = 1; i < _populationSize; i++) {
-				if (_chromosomes[i].Dominates(_chromosomes[i_best]))
+				if (population[i].Dominates(population[i_best]))
 					i_best = i;
 			}
 			
-			if (_bestval == null || _chromosomes[i_best].Dominates(_bestval)) {
-				_bestval = _chromosomes[i_best];
-				Array.Copy(_P, i_best * _chromlen, _best, 0, _chromlen);
+			if (_best == null || population[i_best].Dominates(_best)) {
+				_best = population[i_best];
+				Array.Copy(_P, i_best * _chromlen, _bestval, 0, _chromlen);
 				
 				int start = i_best * _chromlen * 2;
 				for(int i = start, j = 0; i < start + _chromlen * 2; ++j) {
@@ -207,33 +209,34 @@ namespace GaSchedule.Algorithm
 				_Q[q1 + k * 2] = _Q[q2 + k * 2];
 				_Q[q2 + k * 2] = tmp;
 			}
-		}	
-		
-		// Returns pointer to best chromosomes in population
-		public override T Result => (_bestval == null) ? default(T) : _bestval;
-		
+		}
+
 		// Starts and executes algorithm
 		public override void Run(int maxRepeat = 9999, double minFitness = 0.999)
 		{
 			if (_prototype == null)
 				return;
 
-			List<T> population = new();
-			Initialize(population);
-			_chromosomes = population.ToArray();
+			var pop = new List<T>[2];
+			pop[0] = new List<T>();
+			Initialize(pop[0]);
 			_currentGeneration = 0;
-			Observe();
+			Observe(pop[0]);
 			Evaluate();
-			Storebest();
-			population = _chromosomes.ToList();
-
-			int bestNotEnhance = 0;
+			Storebest(pop[0]);
+		
+			_bestNotEnhance = 0;
 			double lastBestFit = 0.0;
 
-			while(_currentGeneration < _max_iterations) {				
+			int cur = 0, next = 1;
+			while(_currentGeneration < _max_iterations)
+			{
 				var best = Result;
-				if(_currentGeneration > 0) {
-					var status = string.Format("\rFitness: {0:F6}\t Generation: {1}", best.Fitness, _currentGeneration);
+				if (_currentGeneration > 0)
+				{
+					var status = string.Format("\rFitness: {0:F6}\t Generation: {1}    ", best.Fitness, _currentGeneration);
+					if(_bestNotEnhance >= _maxRepeat)
+						status = string.Format("\rFitness: {0:F6}\t Generation: {1} ...", best.Fitness, _currentGeneration);
 					Console.Write(status);
 
 					// algorithm has reached criteria?
@@ -241,62 +244,55 @@ namespace GaSchedule.Algorithm
 						break;
 
 					var difference = Math.Abs(best.Fitness - lastBestFit);
-					if (difference <= 0.0000001)
-						++bestNotEnhance;
+					if (difference <= 1e-6)
+						++_bestNotEnhance;
 					else {
 						lastBestFit = best.Fitness;
-						bestNotEnhance = 0;
+						_bestNotEnhance = 0;
 					}
 
-					if (bestNotEnhance > (maxRepeat / 100))		
+					if (_bestNotEnhance > (maxRepeat / 100))
 						Reform();
+
 				}
 
 				/******************* crossover *****************/
-				var offspring = Replacement(population);
+				var offspring = Crossing(pop[cur]);
 
 				/******************* mutation *****************/
 				foreach (var child in offspring)
 					child.Mutation(_mutationSize, _mutationProbability);
-				
-				var totalChromosome = new List<T>(population);
-				totalChromosome.AddRange(offspring);
-				
-				/******************* non-dominated sorting *****************/
-				var front = NonDominatedSorting(totalChromosome);
-				
-				/******************* selection *****************/
-				population = Selection(front, totalChromosome);
-				_populationSize = population.Count;
 
-				/******************* comparison *****************/
-				if (_currentGeneration > 0) {
-					totalChromosome = new List<T>(population);
-					totalChromosome.AddRange(_chromosomes);
-					var newBestFront = NonDominatedSorting(totalChromosome);
-					_chromosomes = Selection(newBestFront, totalChromosome).ToArray();
+				pop[cur].AddRange(offspring);
 
+				/******************* replacement *****************/
+				pop[next] = Replacement(pop[cur]);
+				_best = pop[next][0].Dominates(pop[cur][0]) ? pop[next][0] : pop[cur][0];
+
+				(cur, next) = (next, cur);
+				
+				if (_bestNotEnhance >= _maxRepeat && _currentGeneration % 4 == 0) {
 					for (int i = 0; i < _populationSize; ++i) {
 						var positions = new float[_chromlen];
 						int start = i * _chromlen;
-						_chromosomes[i].ExtractPositions(positions);
+                        pop[cur][i].ExtractPositions(positions);
 						Array.Copy(positions, 0, _P, start, _chromlen);
 					}
+
+					Observe(pop[cur]);
+					Evaluate();
+					Storebest(pop[cur]);
+					Update();
+					Recombine();
 				}
-				
-				Observe();
-				Evaluate();
-				Storebest();
-				Update();
-				Recombine();
+
 				++_currentGeneration;
 			}
 		}
 
-
 		public override string ToString()
 		{
-			return "Real observation QIEA (rQIEA)";
-		}
+            return "Real observation QIEA (rQIEA)";
+        }
 	}
 }

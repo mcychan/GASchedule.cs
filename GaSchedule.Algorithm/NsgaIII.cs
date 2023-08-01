@@ -476,9 +476,10 @@ namespace GaSchedule.Algorithm
 
 		protected virtual List<T> Crossing(List<T> population)
 		{
-			var offspring = new List<T>();
-			for (int i = 0; i < _populationSize; i += 2) {
-				int father = Configuration.Rand(_populationSize), mother = Configuration.Rand(_populationSize);
+			var populationSize = population.Count;
+            var offspring = new List<T>();
+			for (int i = 0; i < populationSize; i += 2) {
+				int father = Configuration.Rand(populationSize), mother = Configuration.Rand(populationSize);
 				var child0 = population[father].Crossover(population[mother], _numberOfCrossoverPoints, _crossoverProbability);
 				var child1 = population[mother].Crossover(population[father], _numberOfCrossoverPoints, _crossoverProbability);
 				offspring.Add(child0);

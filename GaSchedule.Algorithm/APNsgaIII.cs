@@ -17,6 +17,7 @@ namespace GaSchedule.Algorithm
 	public class APNsgaIII<T> : NsgaIII<T> where T : Chromosome<T>
 	{
 		private int _max_iterations = 5000;
+		private int _maxRepeat = 15;
 
 		// Worst of chromosomes
 		protected T _worst;
@@ -24,7 +25,8 @@ namespace GaSchedule.Algorithm
 		// Initializes Adaptive Population NSGA-III with Dual Control Strategy
 		public APNsgaIII(T prototype, int numberOfCrossoverPoints = 2, int mutationSize = 2, float crossoverProbability = 80, float mutationProbability = 3) : base(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability)
 		{
-		}
+            _maxRepeat = Math.Min(_maxRepeat, _max_iterations / 2);
+        }
 
 		private double Ex(T chromosome)
 		{
@@ -72,7 +74,7 @@ namespace GaSchedule.Algorithm
 						_best = tumor;
 				}
 				else {
-					if(bestNotEnhance >= 15 && N < nMax) {
+					if(bestNotEnhance >= _maxRepeat && N < nMax) {
 						++N;
 						if(_worst.Dominates(tumor)) {
 							population.Add(tumor);
@@ -114,7 +116,7 @@ namespace GaSchedule.Algorithm
 				if (currentGeneration > 0)
 				{
 					var status = string.Format("\rFitness: {0:F6}\t Generation: {1}    ", best.Fitness, currentGeneration);
-					if(bestNotEnhance >= 15)
+					if(bestNotEnhance >= _maxRepeat)
 						status = string.Format("\rFitness: {0:F6}\t Generation: {1} ...", best.Fitness, currentGeneration);
 					Console.Write(status);
 
