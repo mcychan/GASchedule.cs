@@ -12,8 +12,8 @@ using GaSchedule.Model;
 
 namespace GaSchedule.Algorithm
 {
-    /****************** Real observation QIEA (rQIEA) **********************/
-    public class Rqiea<T> : NsgaIII<T> where T : Chromosome<T>
+	/****************** Real observation QIEA (rQIEA) **********************/
+	public class Rqiea<T> : NsgaIII<T> where T : Chromosome<T>
 	{
 		private int _currentGeneration = 0, _max_iterations = 5000;
 		private int _maxRepeat = 15;
@@ -32,14 +32,13 @@ namespace GaSchedule.Algorithm
 		// Initializes Adaptive Population NSGA-III with Dual Control Strategy
 		public Rqiea(T prototype, int numberOfCrossoverPoints = 2, int mutationSize = 2, float crossoverProbability = 80, float mutationProbability = 3) : base(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability)
 		{
-            _maxRepeat = Math.Min(_maxRepeat, _max_iterations / 2);
-        }
+			_maxRepeat = Math.Min(_maxRepeat, _max_iterations / 2);
+		}
 
 		protected override void Initialize(List<T> population)
 		{
 			_chromlen = 0;
 			_catastrophe = (int) _mutationProbability;
-			_bestval = default;
 			
 			List<int> bounds = new();
 			for (int i = 0; i < _populationSize; ++i) {
@@ -51,7 +50,7 @@ namespace GaSchedule.Algorithm
 					_Q = new float[_populationSize * _chromlen * 2];
 					_P = new float[_populationSize * _chromlen];
 					_bounds = new float[_chromlen, 2];
-                    _bestval = new float[_chromlen];
+					_bestval = new float[_chromlen];
 					_bestq = new float[_chromlen, 2];
 				}
 				else
@@ -97,7 +96,7 @@ namespace GaSchedule.Algorithm
 				var positions = CopyOfRange(_P, start, start + _chromlen);
 				T chromosome = _prototype.MakeEmptyFromPrototype(null);
 				chromosome.UpdatePositions(positions);
-				if(population[i].Fitness <= 0 ||
+				if(population[i].Fitness < chromosome.Fitness ||
 						(Configuration.Rand(100) <= _catastrophe && population[i].Dominates(chromosome) )) {
 					population[i] = chromosome;
 					++_updated;
@@ -108,7 +107,7 @@ namespace GaSchedule.Algorithm
 				}
 			}
 		}
-		
+
 		private void Storebest(List<T> population) {
 			int i_best = 0;
 			for (int i = 1; i < _populationSize; i++) {
@@ -131,7 +130,7 @@ namespace GaSchedule.Algorithm
 		private void Evaluate() {
 			// not implemented
 		}
-		
+
 		private static float Sign(double x) {
 			if (x > 0)
 				return 1;
@@ -275,7 +274,7 @@ namespace GaSchedule.Algorithm
 					for (int i = 0; i < _populationSize; ++i) {
 						var positions = new float[_chromlen];
 						int start = i * _chromlen;
-                        pop[cur][i].ExtractPositions(positions);
+						pop[cur][i].ExtractPositions(positions);
 						Array.Copy(positions, 0, _P, start, _chromlen);
 					}
 
@@ -292,7 +291,7 @@ namespace GaSchedule.Algorithm
 
 		public override string ToString()
 		{
-            return "Real observation QIEA (rQIEA)";
-        }
+			return "Real observation QIEA (rQIEA)";
+		}
 	}
 }
