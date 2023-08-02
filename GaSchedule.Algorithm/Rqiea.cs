@@ -92,7 +92,7 @@ namespace GaSchedule.Algorithm
 				}
 
 				int start = i * _chromlen;
-				if(population[i].Fitness < chromosome.Fitness || Configuration.Rand(100) <= _catastrophe) {
+				if(population[i].Fitness <= 0 || Configuration.Rand(100) <= _catastrophe) {
 					var positions = CopyOfRange(_P, start, start + _chromlen);
 					var chromosome = _prototype.MakeEmptyFromPrototype(null);
 					chromosome.UpdatePositions(positions);
