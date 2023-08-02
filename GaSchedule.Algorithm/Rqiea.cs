@@ -27,7 +27,7 @@ namespace GaSchedule.Algorithm
 		private float[] _bestval;
 		private float[,] _bestq;
 		
-		private int _bestNotEnhance = 0, _updated = 0;
+		private int _bestNotEnhance = 0;
 
 		// Initializes Adaptive Population NSGA-III with Dual Control Strategy
 		public Rqiea(T prototype, int numberOfCrossoverPoints = 2, int mutationSize = 2, float crossoverProbability = 80, float mutationProbability = 3) : base(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability)
@@ -77,7 +77,6 @@ namespace GaSchedule.Algorithm
 		}
 
 		private void Observe(List<T> population) {
-			_updated = 0;
 			for (int i = 0; i < _populationSize; ++i) {
 				for (int j = 0; j < _chromlen; ++j) {
 					int pij = i * _chromlen + j;
@@ -93,15 +92,14 @@ namespace GaSchedule.Algorithm
 				}
 
 				int start = i * _chromlen;
-				var positions = CopyOfRange(_P, start, start + _chromlen);
-				T chromosome = _prototype.MakeEmptyFromPrototype(null);
-				chromosome.UpdatePositions(positions);
-				if(population[i].Fitness < chromosome.Fitness ||
-						(Configuration.Rand(100) <= _catastrophe && population[i].Dominates(chromosome) )) {
+				if(population[i].Fitness < chromosome.Fitness || Configuration.Rand(100) <= _catastrophe) {
+					var positions = CopyOfRange(_P, start, start + _chromlen);
+					var chromosome = _prototype.MakeEmptyFromPrototype(null);
+					chromosome.UpdatePositions(positions);
 					population[i] = chromosome;
-					++_updated;
 				}
 				else {
+					var positions = new float[_chromlen];
 					population[i].ExtractPositions(positions);
 					Array.Copy(positions, 0, _P, start, _chromlen);
 				}
