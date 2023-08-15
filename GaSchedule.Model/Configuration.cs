@@ -5,9 +5,9 @@ using System.Text.Json;
 
 namespace GaSchedule.Model
 {
-    // Reads configration file and stores parsed objects
-    public class Configuration
-    {
+	// Reads configration file and stores parsed objects
+	public class Configuration
+	{
 		// Parsed professors
 		private readonly Dictionary<int, Professor> _professors;
 
@@ -63,7 +63,7 @@ namespace GaSchedule.Model
 		{
 			if (!_courses.ContainsKey(id))
 				return null;
-			return _courses[id];	
+			return _courses[id];
 		}
 
 		public int NumberOfCourses => _courses.Count;
@@ -314,17 +314,24 @@ namespace GaSchedule.Model
 			return _random.Next(size);
 		}
 
-        public static int Rand(int min, int max)
-        {
-            return min + Rand(max - min + 1);
-        }
+		public static int Rand(int min, int max)
+		{
+			return min + Rand(max - min + 1);
+		}
 
-        public static double Rand(double min, double max)
-        {
-            return min + _random.NextDouble() * (max - min);
-        }
+		public static double Rand(double min, double max)
+		{
+			return min + _random.NextDouble() * (max - min);
+		}
 
-        public static void Seed()
+		public static double NextGaussian()
+		{
+			var u1 = 1.0 - _random.NextDouble(); //uniform(0,1] random doubles
+			var u2 = 1.0 - _random.NextDouble();
+			return Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2); //random normal(0,1)
+		}
+
+		public static void Seed()
 		{
 			_random = new Random(DateTime.Now.Millisecond);
 		}
