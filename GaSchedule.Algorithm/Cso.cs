@@ -44,22 +44,21 @@ namespace GaSchedule.Algorithm
 		
 		static double Gamma(double z)
 		{
+			if (z < 0.5)
+				return Math.PI / Math.Sin(Math.PI * z) / Gamma(1.0 - z);
+
 			// Lanczos approximation g=5, n=7
 			var coef = new double[7] { 1.000000000190015, 76.18009172947146, -86.50532032941677,
 			24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5 };
 
-			var LogSqrtTwoPi = 0.91893853320467274178;
-			if (z < 0.5)
-				return Math.Log(Math.PI / Math.Sin(Math.PI * z)) -Gamma(1.0 - z);
-
 			var zz = z - 1.0;
 			var b = zz + 5.5; // g + 0.5
 			var sum = coef[0];
-
 			for (int i = 1; i < coef.Length; ++i)
 				sum += coef[i] / (zz + i);
 
-			return LogSqrtTwoPi + Math.Log(sum) - b + Math.Log(b) * (zz + 0.5);
+			var LogSqrtTwoPi = 0.91893853320467274178;
+			return Math.Exp(LogSqrtTwoPi + Math.Log(sum) - b + Math.Log(b) * (zz + 0.5));
 		}
 
 		protected override void Initialize(List<T> population)
