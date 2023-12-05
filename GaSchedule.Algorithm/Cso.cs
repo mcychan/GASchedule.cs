@@ -18,7 +18,6 @@ namespace GaSchedule.Algorithm
 		private int _max_iterations = 5000;
 		private int _chromlen;
 		private double _pa, _beta, _σu, _σv;
-		private float[] _sBestScore;
 		private float[][] _current_position = null;
 
 		// Initializes Cuckoo Search Optimization
@@ -98,16 +97,17 @@ namespace GaSchedule.Algorithm
 				double u = Configuration.NextGaussian() * _σu;
 				double v = Configuration.NextGaussian() * _σv;
 				double S = u / Math.Pow(Math.Abs(v), 1 / _beta);
+				float[] sBestScore = null;
 				
 				if(i == 0) {
-					_sBestScore = new float[_chromlen];
-					population[i].ExtractPositions(_sBestScore);
+					sBestScore = new float[_chromlen];
+					population[i].ExtractPositions(sBestScore);
 				}
 				else
-					_sBestScore = Optimum(_sBestScore, population[i]);
+					sBestScore = Optimum(sBestScore, population[i]);
 
 				for(int j = 0; j < _chromlen; ++j)
-					_current_position[i][j] += (float) (Configuration.NextGaussian() * 0.01 * S * (current_position[i][j] - _sBestScore[j]));
+					_current_position[i][j] += (float) (Configuration.NextGaussian() * 0.01 * S * (current_position[i][j] - sBestScore[j]));
 
 				_current_position[i] = Optimum(_current_position[i], population[i]);
 			}
@@ -141,12 +141,9 @@ namespace GaSchedule.Algorithm
 				var chromosome = _prototype.MakeEmptyFromPrototype();
 				chromosome.UpdatePositions(_current_position[i]);
 				population[i] = chromosome;
-			}
-			
-			var result = base.Replacement(population);
-			result[0].ExtractPositions(_current_position[0]);
-			_sBestScore = _current_position[0].ToArray();
-			return result;
+			}			
+
+			return base.Replacement(population);
 		}
 
 		// Starts and executes algorithm
