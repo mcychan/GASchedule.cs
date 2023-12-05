@@ -93,11 +93,11 @@ namespace GaSchedule.Algorithm
 		private void UpdatePosition1(List<T> population)
 		{
 			var current_position = _current_position.ToArray();
+			float[] sBestScore = null;
 			for(int i = 0; i < _populationSize; ++i) {
 				double u = Configuration.NextGaussian() * _σu;
 				double v = Configuration.NextGaussian() * _σv;
 				double S = u / Math.Pow(Math.Abs(v), 1 / _beta);
-				float[] sBestScore = null;
 				
 				if(i == 0) {
 					sBestScore = new float[_chromlen];
