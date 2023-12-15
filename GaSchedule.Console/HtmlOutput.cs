@@ -15,8 +15,10 @@ namespace GaSchedule
 		private const string COLOR1 = "#319378";
 		private const string COLOR2 = "#CE0000";
 		private static char[] CRITERIAS = { 'R', 'S', 'L', 'P', 'G'};
-		private static string[] CRITERIAS_DESCR = { "Current room has {0}overlapping", "Current room has {0}enough seats", "Current room with {0}enough computers if they are required",
-			"Professors have {0}overlapping classes", "Student groups has {0}overlapping classes" };
+		private static string[] OK_DESCR = { "Current room has no overlapping", "Current room has enough seats", "Current room with enough computers if they are required",
+			"Professors have no overlapping classes", "Student groups has no overlapping classes" };
+		private static string[] FAIL_DESCR = { "Current room has overlapping", "Current room has not enough seats", "Current room with not enough computers if they are required",
+			"Professors have overlapping classes", "Student groups has overlapping classes" };
 		private static string[] PERIODS = {"", "9 - 10", "10 - 11", "11 - 12", "12 - 13", "13 - 14", "14 - 15", "15 - 16", "16 - 17", "17 - 18", "18 - 19", "19 - 20", "20 - 21" };
 		private static string[] WEEK_DAYS = { "MON", "TUE", "WED", "THU", "FRI"};
 
@@ -88,12 +90,12 @@ namespace GaSchedule
 					if(solution.Criteria[ci + i])
 					{
 						sb.Append(COLOR1).Append("' title='");
-						sb.Append(string.Format(CRITERIAS_DESCR[i], (i == 1 || i == 2) ? "" : "no "));
+						sb.Append(OK_DESCR[i]);
 					}
 					else
 					{
 						sb.Append(COLOR2).Append("' title='");
-						sb.Append(string.Format(CRITERIAS_DESCR[i], (i == 1 || i == 2) ? "not " : ""));
+						sb.Append(FAIL_DESCR[i]);
 					}
 					sb.Append("'> ").Append(CRITERIAS[i]);
 					sb.Append(" </span>");
