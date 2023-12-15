@@ -58,7 +58,7 @@ namespace GaSchedule.Algorithm
 			_mutationProbability = mutationProbability;
 			
 			_objDivision = new List<int>();
-			if(Criteria.Weights.Length < 8)
+			if(prototype.Objectives.Length < 8)
 				_objDivision.Add(6);
 			else {
 				_objDivision.Add(3);
