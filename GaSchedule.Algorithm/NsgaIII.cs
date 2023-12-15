@@ -507,7 +507,7 @@ namespace GaSchedule.Algorithm
 		protected virtual List<T> Replacement(List<T> population)
 		{
 			var rps = new List<ReferencePoint>();			
-			ReferencePoint.GenerateReferencePoints(rps, Criteria.Weights.Length, _objDivision);				
+			ReferencePoint.GenerateReferencePoints(rps, _prototype.Objectives.Length, _objDivision);				
 			return Selection(population, rps);
 		}
 
