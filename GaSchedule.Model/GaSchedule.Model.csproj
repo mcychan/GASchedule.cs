@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Company>Miller Cy Chan</Company>
     <RepositoryUrl>https://github.com/mcychan/GASchedule.cs</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
