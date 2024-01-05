@@ -18,6 +18,7 @@ namespace GaSchedule.Algorithm
 		private int _max_iterations = 5000;
 		private int _chromlen;
 		private double _pa, _beta, _σu, _σv;
+		private float[] _gBestScore = null;
 		private float[][] _current_position = null;
 
 		// Initializes Cuckoo Search Optimization
@@ -93,21 +94,20 @@ namespace GaSchedule.Algorithm
 		private void UpdatePosition1(List<T> population)
 		{
 			var current_position = _current_position.ToArray();
-			float[] sBestScore = null;
 			for(int i = 0; i < _populationSize; ++i) {
 				double u = Configuration.NextGaussian() * _σu;
 				double v = Configuration.NextGaussian() * _σv;
 				double S = u / Math.Pow(Math.Abs(v), 1 / _beta);
 				
-				if(i == 0) {
-					sBestScore = new float[_chromlen];
-					population[i].ExtractPositions(sBestScore);
+				if(_gBestScore == null) {
+					_gBestScore = new float[_chromlen];
+					population[i].ExtractPositions(_gBestScore);
 				}
 				else
-					sBestScore = Optimum(sBestScore, population[i]);
+					_gBestScore = Optimum(_gBestScore, population[i]);
 
 				for(int j = 0; j < _chromlen; ++j)
-					_current_position[i][j] += (float) (Configuration.NextGaussian() * 0.01 * S * (current_position[i][j] - sBestScore[j]));
+					_current_position[i][j] += (float) (Configuration.NextGaussian() * 0.01 * S * (current_position[i][j] - _gBestScore[j]));
 
 				_current_position[i] = Optimum(_current_position[i], population[i]);
 			}
