@@ -71,11 +71,8 @@ namespace GaSchedule.Algorithm
 		// return Gaussian(x, mu, sigma) = Gaussian N with mean mu and stddev sigma
 		private static double Gaussian(double x, float sigma)
 		{
-            var u1 = 1.0 - Configuration.Random();
-            var u2 = 1.0 - Configuration.Random();
-            var randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
-            return randStdNormal * sigma + x;
-        }
+			return Configuration.NextGaussian() * sigma + x;
+		}
 
 		private void UpdatePosition(List<T> population)
 		{
