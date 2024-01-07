@@ -68,7 +68,6 @@ namespace GaSchedule.Algorithm
 			return positions;
 		}
 
-		// return Gaussian(x, mu, sigma) = Gaussian N with mean mu and stddev sigma
 		private static double Gaussian(double x, float sigma)
 		{
 			return Configuration.NextGaussian() * sigma + x;
@@ -84,7 +83,7 @@ namespace GaSchedule.Algorithm
 				{
 					_pBestScore[i] = fitness;
 					population[i].ExtractPositions(_current_position[i]);
-                    _pBestPosition[i] = _current_position[i].ToArray();
+					_pBestPosition[i] = _current_position[i].ToArray();
 				}
 				_gBest = Optimum(_pBestScore, population[i]);
 
