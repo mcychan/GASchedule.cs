@@ -495,7 +495,7 @@ namespace GaSchedule.Algorithm
 				population.Add(_prototype.MakeNewFromPrototype());
 		}
 
-		protected void Reform()
+		protected virtual void Reform()
 		{
 			Configuration.Seed();
 			if (_crossoverProbability < 95)
@@ -515,7 +515,7 @@ namespace GaSchedule.Algorithm
 		public virtual void Run(int maxRepeat = 9999, double minFitness = 0.999)
 		{
 			if (_prototype == null)
-				return;			
+				return;
 
 			var pop = new List<T>[2];
 			pop[0] = new List<T>();

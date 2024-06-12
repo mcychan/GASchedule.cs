@@ -7,7 +7,7 @@ using GaSchedule.Model;
  * X. -S. Yang and Suash Deb, "Cuckoo Search via Lévy flights,"
  * 2009 World Congress on Nature & Biologically Inspired Computing (NaBIC), Coimbatore, India,
  * 2009, pp. 210-214, doi: 10.1109/NABIC.2009.5393690.
- * Copyright (c) 2023 Miller Cy Chan
+ * Copyright (c) 2023 - 2024 Miller Cy Chan
  */
 
 namespace GaSchedule.Algorithm
@@ -24,6 +24,10 @@ namespace GaSchedule.Algorithm
 		// Initializes Cuckoo Search Optimization
 		public Cso(T prototype, int numberOfCrossoverPoints = 2, int mutationSize = 2, float crossoverProbability = 80, float mutationProbability = 3) : base(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability)
 		{
+			// there should be at least 5 chromosomes in population
+			if (_populationSize < 5)
+				_populationSize = 5;
+
 			_pa = .25;
 			_beta = 1.5;
 			
@@ -69,7 +73,7 @@ namespace GaSchedule.Algorithm
 				// initialize new population with chromosomes randomly built using prototype
 				population.Add(_prototype.MakeNewFromPrototype(positions));
 
-				if(i < 1) {					
+				if(i < 1) {
 					_chromlen = positions.Count;
 					_current_position = CreateArray<float>(_populationSize, _chromlen);
 				}
@@ -117,9 +121,11 @@ namespace GaSchedule.Algorithm
 		{
 			var current_position = _current_position.ToArray();
 			for (int i = 0; i < _populationSize; ++i) {
-				for(int j = 0; j < _chromlen; ++j) {
+				var changed = false;
+				for (int j = 0; j < _chromlen; ++j) {
 					var r = Configuration.Random();
 					if(r < _pa) {
+						changed = true;
 						int d1 = Configuration.Rand(5);
 						int d2;
 						do {
@@ -128,8 +134,19 @@ namespace GaSchedule.Algorithm
 						_current_position[i][j] += (float) (Configuration.Random() * (current_position[d1][j] - current_position[d2][j]));
 					}
 				}
-				_current_position[i] = Optimum(_current_position[i], population[i]);
+
+				if(changed)
+					_current_position[i] = Optimum(_current_position[i], population[i]);
 			}
+		}
+
+		protected override void Reform()
+		{
+			Configuration.Seed();
+			if (_crossoverProbability < 95)
+				_crossoverProbability += 1.0f;
+			else if (_pa < .5)
+				_pa += .01;
 		}
 
 		protected override List<T> Replacement(List<T> population)
@@ -141,7 +158,7 @@ namespace GaSchedule.Algorithm
 				var chromosome = _prototype.MakeEmptyFromPrototype();
 				chromosome.UpdatePositions(_current_position[i]);
 				population[i] = chromosome;
-			}			
+			}
 
 			return base.Replacement(population);
 		}
