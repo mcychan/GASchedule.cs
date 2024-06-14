@@ -1,0 +1,222 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using GaSchedule.Model;
+
+/*
+ * Xie, Jian & Chen, Huan. (2013).
+ * A Novel Bat Algorithm Based on Differential Operator and Lévy Flights Trajectory.
+ * Computational intelligence and neuroscience. 2013. 453812. 10.1155/2013/453812. 
+ * Copyright (c) 2024 Miller Cy Chan
+ */
+
+namespace GaSchedule.Algorithm
+{
+	public class Dlba<T> : NsgaIII<T> where T : Chromosome<T>
+	{
+		private int _currentGeneration, _max_iterations = 5000;
+		
+		private int _chromlen, _minValue = 0;
+		
+		private double _alpha, _pa;
+
+		private float[] _frequency, _rate, _loudness;
+		
+		private float[] _gBest = null;
+		private float[][] _position = null;
+		private float[][] _velocity = null;
+		
+		private List<int> _maxValues;
+		private LévyFlights<T> _lf;
+
+		// Initializes Bat algorithm
+		public Dlba(T prototype, int numberOfCrossoverPoints = 2, int mutationSize = 2, float crossoverProbability = 80, float mutationProbability = 3) : base(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability)
+		{
+			_alpha = 0.9;
+			_pa = .25;
+		}
+
+		static E[][] CreateArray<E>(int rows, int cols)
+		{
+			E[][] array = new E[rows][];
+			for (int i = 0; i < array.GetLength(0); i++)
+				array[i] = new E[cols];
+
+			return array;
+		}
+
+		protected override void Initialize(List<T> population)
+		{
+			_maxValues = new();
+			_prototype.MakeEmptyFromPrototype(_maxValues);
+			
+			for (int i = 0; i < _populationSize; ++i) {
+				List<float> positions = new();
+
+				// initialize new population with chromosomes randomly built using prototype
+				population.Add(_prototype.MakeNewFromPrototype(positions));
+				
+				if(i < 1) {
+					_chromlen = positions.Count;
+					_frequency = new float[_chromlen];
+					_rate = new float[_populationSize];
+					_loudness = new float[_populationSize];
+					_position = CreateArray<float>(_populationSize, _chromlen);
+					_velocity = CreateArray<float>(_populationSize, _chromlen);
+					_lf = new LévyFlights<T>(_chromlen);
+				}
+				
+				_rate[i] = (float) Configuration.Random();
+				_loudness[i] = (float) Configuration.Random() + 1;
+			}
+		}
+
+		protected override void Reform()
+		{
+			Configuration.Seed();
+			if (_crossoverProbability < 95)
+				_crossoverProbability += 1.0f;
+			else if (_pa < .5)
+				_pa += .01;
+		}
+
+		private void UpdateVelocities(List<T> population)
+		{
+			var mean = _loudness.Average();
+
+			var globalBest = _prototype.MakeEmptyFromPrototype();
+			globalBest.UpdatePositions(_gBest);
+			var localBest = _prototype.MakeNewFromPrototype();
+		
+			for (int i = 0; i < _populationSize; ++i) {
+				var beta = (float) Configuration.Random();
+				var rand = Configuration.Random();
+				var n = Configuration.Rand(-1.0, 1.0);
+
+				int dim = _velocity[i].Length;
+				for(int j = 0; j < dim; ++j) {
+					_frequency[j] = ((_maxValues[j] - _minValue) * _currentGeneration / (float) n + _minValue) * beta;
+					_velocity[i][j] += (_position[i][j] - _gBest[j]) * _frequency[j];
+					
+					if (rand > _rate[i]) {
+						_position[i][j] += _velocity[i][j];
+						if(_position[i][j] > _maxValues[j]) {
+							_position[i][j] = _maxValues[j];
+							_velocity[i][j] = _minValue;
+						}
+						else if(_position[i][j] < _minValue)
+							_position[i][j] = _velocity[i][j] = _minValue;
+					}
+				}
+
+				var localTemp = _prototype.MakeEmptyFromPrototype();
+				localTemp.UpdatePositions(_position[i]);
+				if (localTemp.Dominates(localBest))
+					localBest = localTemp;
+			}
+
+			for (int i = 0; i < _populationSize; ++i) {
+				var positionTemp = _position.ToArray();
+				var rand = Configuration.Random();
+				if (rand < _loudness[i]) {
+					var n = Configuration.Rand(-1.0, 1.0);
+					int dim = _velocity[i].Length;
+					for(int j = 0; j < dim; ++j) {
+						positionTemp[i][j] = _gBest[j] + (float) n * mean;
+						if(positionTemp[i][j] > _maxValues[j]) {
+							positionTemp[i][j] = _maxValues[j];
+							_velocity[i][j] = _minValue;
+						}
+						else if(positionTemp[i][j] < _minValue)
+							positionTemp[i][j] = _velocity[i][j] = _minValue;
+					}
+					
+					if (globalBest.Dominates(localBest)) {
+						_position[i] = positionTemp[i];
+						_rate[i] *= (float) Math.Pow(_currentGeneration / n, 3);
+						_loudness[i] *= (float) _alpha;
+					}
+				}
+				
+				_position[i] = _lf.Optimum(_position[i], population[i]);
+			}
+		}
+
+		protected override List<T> Replacement(List<T> population)
+		{
+			_gBest = _lf.UpdateVelocities(population, _populationSize, _position, _gBest);
+			UpdateVelocities(population);
+			
+			for (int i = 0; i < _populationSize; ++i) {
+				var chromosome = _prototype.MakeEmptyFromPrototype();
+				chromosome.UpdatePositions(_position[i]);
+				population[i] = chromosome;
+			}
+
+			return base.Replacement(population);
+		}
+
+		// Starts and executes algorithm
+		public override void Run(int maxRepeat = 9999, double minFitness = 0.999)
+		{
+			if (_prototype == null)
+				return;
+
+			var pop = new List<T>[2];
+			pop[0] = new List<T>();
+			Initialize(pop[0]);
+
+			// Current generation
+			int currentGeneration = 0;
+			int bestNotEnhance = 0;
+			double lastBestFit = 0.0;
+
+			int cur = 0, next = 1;
+			while(currentGeneration < _max_iterations)
+			{
+				var best = Result;
+				if (currentGeneration > 0)
+				{
+					var status = string.Format("\rFitness: {0:F6}\t Generation: {1}", best.Fitness, currentGeneration);
+					Console.Write(status);
+
+					// algorithm has reached criteria?
+					if (best.Fitness > minFitness)
+						break;
+
+					var difference = Math.Abs(best.Fitness - lastBestFit);
+					if (difference <= 1e-6)
+						++bestNotEnhance;
+					else {
+						lastBestFit = best.Fitness;
+						bestNotEnhance = 0;
+					}
+
+					if (bestNotEnhance > (maxRepeat / 100))
+						Reform();
+				}
+
+				/******************* crossover *****************/
+				var offspring = Crossing(pop[cur]);
+
+				/******************* mutation *****************/
+				foreach (var child in offspring)
+					child.Mutation(_mutationSize, _mutationProbability);
+
+				pop[cur].AddRange(offspring);
+
+				/******************* replacement *****************/
+				pop[next] = Replacement(pop[cur]);
+				_best = pop[next][0].Dominates(pop[cur][0]) ? pop[next][0] : pop[cur][0];
+
+				(cur, next) = (next, cur);
+				++currentGeneration;
+			}
+		}
+
+		public override string ToString()
+		{
+			return "Bat algorithm with differential operator and Levy flights trajectory (DLBA)";
+		}
+	}
+}

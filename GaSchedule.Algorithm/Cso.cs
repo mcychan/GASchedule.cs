@@ -17,9 +17,10 @@ namespace GaSchedule.Algorithm
 	{
 		private int _max_iterations = 5000;
 		private int _chromlen;
-		private double _pa, _beta, _σu, _σv;
-		private float[] _gBestScore = null;
+		private double _pa;
+		private float[] _gBest = null;
 		private float[][] _current_position = null;
+		private LévyFlights<T> _lf;
 
 		// Initializes Cuckoo Search Optimization
 		public Cso(T prototype, int numberOfCrossoverPoints = 2, int mutationSize = 2, float crossoverProbability = 80, float mutationProbability = 3) : base(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability)
@@ -29,12 +30,6 @@ namespace GaSchedule.Algorithm
 				_populationSize = 5;
 
 			_pa = .25;
-			_beta = 1.5;
-			
-			var num = Gamma(1 + _beta) * Math.Sin(Math.PI * _beta / 2);
-			var den = Gamma((1 + _beta) / 2) * _beta * Math.Pow(2, (_beta - 1) / 2);
-			_σu = Math.Pow(num / den, 1 / _beta);
-			_σv = 1;
 		}
 
 		static E[][] CreateArray<E>(int rows, int cols)
@@ -44,25 +39,6 @@ namespace GaSchedule.Algorithm
 				array[i] = new E[cols];
 
 			return array;
-		}
-		
-		static double Gamma(double z)
-		{
-			if (z < 0.5)
-				return Math.PI / Math.Sin(Math.PI * z) / Gamma(1.0 - z);
-
-			// Lanczos approximation g=5, n=7
-			var coef = new double[7] { 1.000000000190015, 76.18009172947146, -86.50532032941677,
-			24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5 };
-
-			var zz = z - 1.0;
-			var b = zz + 5.5; // g + 0.5
-			var sum = coef[0];
-			for (int i = 1; i < coef.Length; ++i)
-				sum += coef[i] / (zz + i);
-
-			var LogSqrtTwoPi = 0.91893853320467274178;
-			return Math.Exp(LogSqrtTwoPi + Math.Log(sum) - b + Math.Log(b) * (zz + 0.5));
 		}
 
 		protected override void Initialize(List<T> population)
@@ -76,48 +52,13 @@ namespace GaSchedule.Algorithm
 				if(i < 1) {
 					_chromlen = positions.Count;
 					_current_position = CreateArray<float>(_populationSize, _chromlen);
+					_lf = new LévyFlights<T>(_chromlen);
 				}
 			}
 		}
 
-		private float[] Optimum(float[] localVal, T chromosome)
-		{
-			var localBest = _prototype.MakeEmptyFromPrototype();
-			localBest.UpdatePositions(localVal);
-			
-			if(localBest.Dominates(chromosome)) {
-				chromosome.UpdatePositions(localVal);
-				return localVal;
-			}
 
-			var positions = new float[_chromlen];
-			chromosome.ExtractPositions(positions);
-			return positions;
-		}
-
-		private void UpdatePosition1(List<T> population)
-		{
-			var current_position = _current_position.ToArray();
-			for(int i = 0; i < _populationSize; ++i) {
-				double u = Configuration.NextGaussian() * _σu;
-				double v = Configuration.NextGaussian() * _σv;
-				double S = u / Math.Pow(Math.Abs(v), 1 / _beta);
-				
-				if(_gBestScore == null) {
-					_gBestScore = new float[_chromlen];
-					population[i].ExtractPositions(_gBestScore);
-				}
-				else
-					_gBestScore = Optimum(_gBestScore, population[i]);
-
-				for(int j = 0; j < _chromlen; ++j)
-					_current_position[i][j] += (float) (Configuration.NextGaussian() * 0.01 * S * (current_position[i][j] - _gBestScore[j]));
-
-				_current_position[i] = Optimum(_current_position[i], population[i]);
-			}
-		}
-		
-		private void UpdatePosition2(List<T> population)
+		private void UpdateVelocities(List<T> population)
 		{
 			var current_position = _current_position.ToArray();
 			for (int i = 0; i < _populationSize; ++i) {
@@ -136,7 +77,7 @@ namespace GaSchedule.Algorithm
 				}
 
 				if(changed)
-					_current_position[i] = Optimum(_current_position[i], population[i]);
+					_current_position[i] = _lf.Optimum(_current_position[i], population[i]);
 			}
 		}
 
@@ -151,8 +92,8 @@ namespace GaSchedule.Algorithm
 
 		protected override List<T> Replacement(List<T> population)
 		{
-			UpdatePosition1(population);
-			UpdatePosition2(population);
+			_gBest = _lf.UpdateVelocities(population, _populationSize, _current_position, _gBest);
+			UpdateVelocities(population);
 			
 			for (int i = 0; i < _populationSize; ++i) {
 				var chromosome = _prototype.MakeEmptyFromPrototype();

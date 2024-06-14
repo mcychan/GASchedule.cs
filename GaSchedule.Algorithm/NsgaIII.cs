@@ -499,14 +499,14 @@ namespace GaSchedule.Algorithm
 		{
 			Configuration.Seed();
 			if (_crossoverProbability < 95)
-			_crossoverProbability += 1.0f;
+				_crossoverProbability += 1.0f;
 			else if (_mutationProbability < 30)
-			_mutationProbability += 1.0f;
+				_mutationProbability += 1.0f;
 		}
 		
 		protected virtual List<T> Replacement(List<T> population)
 		{
-			var rps = new List<ReferencePoint>();			
+			var rps = new List<ReferencePoint>();
 			ReferencePoint.GenerateReferencePoints(rps, _prototype.Objectives.Length, _objDivision);				
 			return Selection(population, rps);
 		}
