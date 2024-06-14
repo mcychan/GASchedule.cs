@@ -5,7 +5,7 @@ using System.Reflection;
 using GaSchedule.Algorithm;
 using GaSchedule.Model;
 
-[assembly: AssemblyVersionAttribute("1.2.5")]
+[assembly: AssemblyVersionAttribute("1.2.6")]
 namespace GaSchedule
 {
     class ConsoleApp
