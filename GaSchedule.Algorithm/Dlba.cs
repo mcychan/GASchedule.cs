@@ -20,12 +20,12 @@ namespace GaSchedule.Algorithm
 		
 		private double _alpha, _pa;
 
-		private float[] _frequency, _rate, _loudness;
-		
+		private float[] _f1, _f2;
+		private float[] _loudness, _rate;
+
 		private float[] _gBest = null;
 		private float[][] _position = null;
-		private float[][] _velocity = null;
-		
+
 		private List<int> _maxValues;
 		private LévyFlights<T> _lf;
 
@@ -58,11 +58,11 @@ namespace GaSchedule.Algorithm
 				
 				if(i < 1) {
 					_chromlen = positions.Count;
-					_frequency = new float[_chromlen];
+					_f1 = new float[_chromlen];
+					_f2 = new float[_chromlen];
 					_rate = new float[_populationSize];
 					_loudness = new float[_populationSize];
 					_position = CreateArray<float>(_populationSize, _chromlen);
-					_velocity = CreateArray<float>(_populationSize, _chromlen);
 					_lf = new LévyFlights<T>(_chromlen);
 				}
 				
@@ -80,34 +80,41 @@ namespace GaSchedule.Algorithm
 				_pa += .01;
 		}
 
-		private void UpdateVelocities(List<T> population)
+		private void UpdatePositions(List<T> population)
 		{
 			var mean = _loudness.Average();
-
-			var globalBest = _prototype.MakeEmptyFromPrototype();
-			globalBest.UpdatePositions(_gBest);
 			var localBest = _prototype.MakeNewFromPrototype();
-		
+			if(_gBest == null)
+				_gBest = _position[0];
+
 			for (int i = 0; i < _populationSize; ++i) {
 				var beta = (float) Configuration.Random();
 				var rand = Configuration.Random();
-				var n = Configuration.Rand(-1.0, 1.0);
+				var B1 = Configuration.Rand(-1.0, 1.0);
+				var B2 = Configuration.Rand(-1.0, 1.0);
 
-				int dim = _velocity[i].Length;
+				int r1 = Configuration.Rand(_populationSize);
+				int r2 = Configuration.Rand(_populationSize);
+				while(r1 == r2)
+					r2 = Configuration.Rand(_populationSize);
+				int r3 = Configuration.Rand(_populationSize);
+				int r4 = Configuration.Rand(_populationSize);
+				while(r3 == r4)
+					r4 = Configuration.Rand(_populationSize);
+
+				int dim = _position[i].Length;
 				for(int j = 0; j < dim; ++j) {
-					_frequency[j] = ((_maxValues[j] - _minValue) * _currentGeneration / (float) n + _minValue) * beta;
-					_velocity[i][j] += (_position[i][j] - _gBest[j]) * _frequency[j];
+					_f1[j] = ((_minValue - _maxValues[j]) * _currentGeneration / (float) B1 + _maxValues[j]) * beta;
+					_f2[j] = ((_maxValues[j] - _minValue) * _currentGeneration / (float) B2 + _minValue) * beta;
+					_position[i][j] = _gBest[j] + _f1[j] * (_position[r1][j] - _position[r2][j]) + _f2[j] * (_position[r3][j] - _position[r3][j]);
 					
 					if (rand > _rate[i]) {
-						_position[i][j] += _velocity[i][j];
-						if(_position[i][j] > _maxValues[j]) {
-							_position[i][j] = _maxValues[j];
-							_velocity[i][j] = _minValue;
-						}
-						else if(_position[i][j] < _minValue)
-							_position[i][j] = _velocity[i][j] = _minValue;
+						var e = Configuration.Rand(-1.0, 1.0);
+						_position[i][j] += (float) (_gBest[j] + e * mean);
 					}
 				}
+
+				_gBest = _lf.UpdatePosition(population[i], _position, i, _gBest);
 
 				var localTemp = _prototype.MakeEmptyFromPrototype();
 				localTemp.UpdatePositions(_position[i]);
@@ -115,22 +122,18 @@ namespace GaSchedule.Algorithm
 					localBest = localTemp;
 			}
 
+			var globalBest = _prototype.MakeEmptyFromPrototype(null);
+			globalBest.UpdatePositions(_gBest);
+			mean = _rate.Average();
 			for (int i = 0; i < _populationSize; ++i) {
 				var positionTemp = _position.ToArray();
 				var rand = Configuration.Random();
 				if (rand < _loudness[i]) {
 					var n = Configuration.Rand(-1.0, 1.0);
-					int dim = _velocity[i].Length;
-					for(int j = 0; j < dim; ++j) {
+					int dim = _position[i].Length;
+					for(int j = 0; j < dim; ++j)
 						positionTemp[i][j] = _gBest[j] + (float) n * mean;
-						if(positionTemp[i][j] > _maxValues[j]) {
-							positionTemp[i][j] = _maxValues[j];
-							_velocity[i][j] = _minValue;
-						}
-						else if(positionTemp[i][j] < _minValue)
-							positionTemp[i][j] = _velocity[i][j] = _minValue;
-					}
-					
+
 					if (globalBest.Dominates(localBest)) {
 						_position[i] = positionTemp[i];
 						_rate[i] *= (float) Math.Pow(_currentGeneration / n, 3);
@@ -144,8 +147,7 @@ namespace GaSchedule.Algorithm
 
 		protected override List<T> Replacement(List<T> population)
 		{
-			_gBest = _lf.UpdateVelocities(population, _populationSize, _position, _gBest);
-			UpdateVelocities(population);
+			UpdatePositions(population);
 			
 			for (int i = 0; i < _populationSize; ++i) {
 				var chromosome = _prototype.MakeEmptyFromPrototype();

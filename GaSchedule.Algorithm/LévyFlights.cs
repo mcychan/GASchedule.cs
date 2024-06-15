@@ -10,7 +10,7 @@ namespace GaSchedule.Algorithm
 		private int _chromlen;
 		private double _beta, _σu, _σv;
 
-        internal LévyFlights(int chromlen)
+		internal LévyFlights(int chromlen)
 		{
 			_chromlen = chromlen;
 
@@ -54,27 +54,33 @@ namespace GaSchedule.Algorithm
 			chromosome.ExtractPositions(positions);
 			return positions;
 		}
-		
-		internal float[] UpdateVelocities(List<T> population, int populationSize, float[][] currentPosition, float[] gBest)
+
+		internal float[] UpdatePosition(T chromosome, float[][] currentPosition, int i, float[] gBest)
 		{
-			var current_position = currentPosition.ToArray();
-			for(int i = 0; i < populationSize; ++i) {
-				var u = Configuration.NextGaussian() * _σu;
-				var v = Configuration.NextGaussian() * _σv;
-				var S = u / Math.Pow(Math.Abs(v), 1 / _beta);
-				
-				if(gBest == null) {
-                    gBest = new float[_chromlen];
-					population[i].ExtractPositions(gBest);
-				}
-				else
-                    gBest = Optimum(gBest, population[i]);
-
-				for(int j = 0; j < _chromlen; ++j)
-                    currentPosition[i][j] += (float) (Configuration.NextGaussian() * 0.01 * S * (current_position[i][j] - gBest[j]));
-
-                currentPosition[i] = Optimum(currentPosition[i], population[i]);
+			var curPos = currentPosition[i].ToArray();
+			var u = Configuration.NextGaussian() * _σu;
+			var v = Configuration.NextGaussian() * _σv;
+			var S = u / Math.Pow(Math.Abs(v), 1 / _beta);
+			
+			if(gBest == null) {
+				gBest = new float[_chromlen];
+                chromosome.ExtractPositions(gBest);
 			}
+			else
+				gBest = Optimum(gBest, chromosome);
+
+			for(int j = 0; j < _chromlen; ++j)
+				currentPosition[i][j] += (float) (Configuration.NextGaussian() * 0.01 * S * (curPos[j] - gBest[j]));
+
+			currentPosition[i] = Optimum(currentPosition[i], chromosome);
+			return gBest;
+		}
+
+		internal float[] UpdatePositions(List<T> population, int populationSize, float[][] currentPosition, float[] gBest)
+		{
+			for(int i = 0; i < populationSize; ++i)
+				gBest = UpdatePosition(population[i], currentPosition, i, gBest);
+
 			return gBest;
 		}
 	}

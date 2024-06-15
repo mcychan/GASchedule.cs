@@ -4,31 +4,30 @@ using System.Linq;
 using GaSchedule.Model;
 
 /*
- * X. -S. Yang and Suash Deb, "Cuckoo Search via Lévy flights,"
- * 2009 World Congress on Nature & Biologically Inspired Computing (NaBIC), Coimbatore, India,
- * 2009, pp. 210-214, doi: 10.1109/NABIC.2009.5393690.
- * Copyright (c) 2023 - 2024 Miller Cy Chan
- */
+* Yang, X. S. 2012. Flower pollination algorithm for global optimization. Unconventional
+* Computation and Natural Computation 7445: 240–49.
+* Copyright (c) 2024 Miller Cy Chan
+*/
 
 namespace GaSchedule.Algorithm
 {
-	/****************** Cuckoo Search Optimization (CSO) **********************/
-	public class Cso<T> : NsgaIII<T> where T : Chromosome<T>
+	public class Fpa<T> : NsgaIII<T> where T : Chromosome<T>
 	{
 		private int _max_iterations = 5000;
+
 		private int _chromlen;
+
 		private double _pa;
+
 		private float[] _gBest = null;
+
 		private float[][] _current_position = null;
+
 		private LévyFlights<T> _lf;
 
-		// Initializes Cuckoo Search Optimization
-		public Cso(T prototype, int numberOfCrossoverPoints = 2, int mutationSize = 2, float crossoverProbability = 80, float mutationProbability = 3) : base(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability)
+		// Initializes Flower Pollination Algorithm
+		public Fpa(T prototype, int numberOfCrossoverPoints = 2, int mutationSize = 2, float crossoverProbability = 80, float mutationProbability = 3) : base(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability)
 		{
-			// there should be at least 5 chromosomes in population
-			if (_populationSize < 5)
-				_populationSize = 5;
-
 			_pa = .25;
 		}
 
@@ -45,39 +44,15 @@ namespace GaSchedule.Algorithm
 		{
 			for (int i = 0; i < _populationSize; ++i) {
 				List<float> positions = new();
-
+				
 				// initialize new population with chromosomes randomly built using prototype
 				population.Add(_prototype.MakeNewFromPrototype(positions));
-
+				
 				if(i < 1) {
 					_chromlen = positions.Count;
 					_current_position = CreateArray<float>(_populationSize, _chromlen);
 					_lf = new LévyFlights<T>(_chromlen);
 				}
-			}
-		}
-
-
-		private void UpdateVelocities(List<T> population)
-		{
-			var current_position = _current_position.ToArray();
-			for (int i = 0; i < _populationSize; ++i) {
-				var changed = false;
-				for (int j = 0; j < _chromlen; ++j) {
-					var r = Configuration.Random();
-					if(r < _pa) {
-						changed = true;
-						int d1 = Configuration.Rand(5);
-						int d2;
-						do {
-							d2 = Configuration.Rand(5);
-						} while(d1 == d2);
-						_current_position[i][j] += (float) (Configuration.Random() * (current_position[d1][j] - current_position[d2][j]));
-					}
-				}
-
-				if(changed)
-					_current_position[i] = _lf.Optimum(_current_position[i], population[i]);
 			}
 		}
 
@@ -90,10 +65,31 @@ namespace GaSchedule.Algorithm
 				_pa += .01;
 		}
 
+		private void UpdatePositions(List<T> population)
+		{
+			var current_position = _current_position.ToArray();
+			for (int i = 0; i < _populationSize; ++i) {
+				var r = Configuration.Random();
+				if(r < _pa)
+					_gBest = _lf.UpdatePosition(population[i], _current_position, i, _gBest);
+				else {
+					int d1 = Configuration.Rand(_populationSize);
+					int d2;
+					do {
+						d2 = Configuration.Rand(_populationSize);
+					} while(d1 == d2);
+					
+					for(int j = 0; j < _chromlen; ++j)
+						_current_position[i][j] += (float) (Configuration.Random() * (current_position[d1][j] - current_position[d2][j]));
+				
+					_current_position[i] = _lf.Optimum(_current_position[i], population[i]);
+				}
+			}
+		}
+
 		protected override List<T> Replacement(List<T> population)
 		{
-			_gBest = _lf.UpdatePositions(population, _populationSize, _current_position, _gBest);
-			UpdateVelocities(population);
+			UpdatePositions(population);
 			
 			for (int i = 0; i < _populationSize; ++i) {
 				var chromosome = _prototype.MakeEmptyFromPrototype();
@@ -164,7 +160,7 @@ namespace GaSchedule.Algorithm
 
 		public override string ToString()
 		{
-			return "Cuckoo Search Optimization (CSO)";
+			return "Flower Pollination Algorithm (FPA)";
 		}
 	}
 }
