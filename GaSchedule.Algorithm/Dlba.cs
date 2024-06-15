@@ -20,7 +20,6 @@ namespace GaSchedule.Algorithm
 		
 		private double _alpha, _pa;
 
-		private float[] _f1, _f2;
 		private float[] _loudness, _rate;
 
 		private float[] _gBest = null;
@@ -58,8 +57,6 @@ namespace GaSchedule.Algorithm
 				
 				if(i < 1) {
 					_chromlen = positions.Count;
-					_f1 = new float[_chromlen];
-					_f2 = new float[_chromlen];
 					_rate = new float[_populationSize];
 					_loudness = new float[_populationSize];
 					_position = CreateArray<float>(_populationSize, _chromlen);
@@ -104,9 +101,9 @@ namespace GaSchedule.Algorithm
 
 				int dim = _position[i].Length;
 				for(int j = 0; j < dim; ++j) {
-					_f1[j] = ((_minValue - _maxValues[j]) * _currentGeneration / (float) B1 + _maxValues[j]) * beta;
-					_f2[j] = ((_maxValues[j] - _minValue) * _currentGeneration / (float) B2 + _minValue) * beta;
-					_position[i][j] = _gBest[j] + _f1[j] * (_position[r1][j] - _position[r2][j]) + _f2[j] * (_position[r3][j] - _position[r3][j]);
+					var f1 = ((_minValue - _maxValues[j]) * _currentGeneration / (float) B1 + _maxValues[j]) * beta;
+					var f2 = ((_maxValues[j] - _minValue) * _currentGeneration / (float) B2 + _minValue) * beta;
+					_position[i][j] = _gBest[j] + f1 * (_position[r1][j] - _position[r2][j]) + f2 * (_position[r3][j] - _position[r3][j]);
 					
 					if (rand > _rate[i]) {
 						var e = Configuration.Rand(-1.0, 1.0);
