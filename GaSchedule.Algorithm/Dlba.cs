@@ -80,9 +80,10 @@ namespace GaSchedule.Algorithm
 		private void UpdatePositions(List<T> population)
 		{
 			var mean = _loudness.Average();
-			var localBest = _prototype.MakeNewFromPrototype();
 			if(_gBest == null)
 				_gBest = _position[0];
+			var prevBest = _prototype.MakeEmptyFromPrototype();
+			prevBest.UpdatePositions(_gBest);
 
 			for (int i = 0; i < _populationSize; ++i) {
 				var beta = (float) Configuration.Random();
@@ -112,11 +113,6 @@ namespace GaSchedule.Algorithm
 				}
 
 				_gBest = _lf.UpdatePosition(population[i], _position, i, _gBest);
-
-				var localTemp = _prototype.MakeEmptyFromPrototype();
-				localTemp.UpdatePositions(_position[i]);
-				if (localTemp.Dominates(localBest))
-					localBest = localTemp;
 			}
 
 			var globalBest = _prototype.MakeEmptyFromPrototype(null);
@@ -131,7 +127,7 @@ namespace GaSchedule.Algorithm
 					for(int j = 0; j < dim; ++j)
 						positionTemp[i][j] = _gBest[j] + (float) n * mean;
 
-					if (globalBest.Dominates(localBest)) {
+					if (prevBest.Dominates(globalBest)) {
 						_position[i] = positionTemp[i];
 						_rate[i] *= (float) Math.Pow(_currentGeneration / n, 3);
 						_loudness[i] *= (float) _alpha;
