@@ -31,6 +31,10 @@ namespace GaSchedule.Algorithm
 		// Initializes Bat algorithm
 		public Dlba(T prototype, int numberOfCrossoverPoints = 2, int mutationSize = 2, float crossoverProbability = 80, float mutationProbability = 3) : base(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability)
 		{
+			// there should be at least 5 chromosomes in population
+			if (_populationSize < 5)
+				_populationSize = 5;
+
 			_alpha = 0.9;
 			_pa = .25;
 		}

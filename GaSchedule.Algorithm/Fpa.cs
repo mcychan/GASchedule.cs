@@ -28,6 +28,10 @@ namespace GaSchedule.Algorithm
 		// Initializes Flower Pollination Algorithm
 		public Fpa(T prototype, int numberOfCrossoverPoints = 2, int mutationSize = 2, float crossoverProbability = 80, float mutationProbability = 3) : base(prototype, numberOfCrossoverPoints, mutationSize, crossoverProbability, mutationProbability)
 		{
+			// there should be at least 5 chromosomes in population
+			if (_populationSize < 5)
+				_populationSize = 5;
+
 			_pa = .25;
 		}
 
